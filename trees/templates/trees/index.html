@@ -1,0 +1,9 @@
+{% if donation_list %}
+    <ul>
+    {% for donation in donation_list %}
+        <li><a href="/trees/{{ donation.id }}/">{{ donation.id }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No donations are available.</p>
+{% endif %}
