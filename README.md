@@ -23,7 +23,7 @@ Django web application for managing tree adoptions and donor contributions on an
 ## Setup Instructions
 ### 1. Clone the repository:
 ```bash
-git clone https://github.com/Alliance-for-a-Sustainable-Amazon/ASA-Adopt-A-Tree
+git clone https://github.com/Alliance-for-a-Sustainable-Amazon/ASA-Adopt-A-Tree.git
 cd adopt-a-tree
 ```
 ### 2. Create virtual environment:
