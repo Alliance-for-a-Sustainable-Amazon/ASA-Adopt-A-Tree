@@ -1,5 +1,19 @@
 # ASA Adopt A Tree 
 
+## Table of Contents
+1. [Project Overview](#project-overview)
+2. [Features](#features)
+3. [System Architecture](#system-architecture)
+4. [Setup Instructions](#setup-instructions)
+5. [Database Structure](#database-structure)
+6. [Authentication](#authentication)
+7. [Core Functionality](#core-functionality)
+8. [User Interfact](#user-interface)
+9. [Deployment](#depolyment)
+10. [Code Structure](#code-structure)
+11. [References](#references)
+
+## Project Overview 
 Django web application for managing tree adoptions and donor contributions on an interactive map.
 
 ---
@@ -13,10 +27,10 @@ Django web application for managing tree adoptions and donor contributions on an
 
 ## System Architecture
 ### Technology Stack
-- Python
-- Django
-- PostgreSQL
-- Azure
+- **Frontend:** HTML, CSS, JavaScript, Django templates, Google Maps API
+- **Backend:** Django 6.0.2, Python 3.14.4
+- **Database:** PostgreSQL 
+- **Deployment:** Azure App Service, Azure database hosting, Wix Studio
 
 ---
 
@@ -43,7 +57,7 @@ cp .env.example .env
 ```bash
 python manage.py migrate
 ```
-### 6. Setup superuser:
+### 6. Create superuser:
 ```bash
 python manage.py createsuperuser
 ```
@@ -51,3 +65,24 @@ python manage.py createsuperuser
 ```bash
 python manage.py runserver
 ```
+
+## Database Structure
+TBD
+
+## Authentication
+TBD
+
+## Core Functionality
+TBD
+
+## User Interface
+TBD
+
+## Deployment
+TBD
+
+## Code Structure
+TBD
+
+## References
+TBD
