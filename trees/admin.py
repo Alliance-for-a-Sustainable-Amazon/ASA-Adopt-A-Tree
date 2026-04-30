@@ -5,18 +5,42 @@ Registers all models on the admin site.
 
 from django.contrib import admin
 from .models import Tree, Donor, Donation
+from copy import deepcopy
+
+# Default admin class that allows the collapsible fields of table entries to start open when creating a new table entry,
+# but start closed when modifying or viewing an existing entry.
+class StartOpenAdmin(admin.ModelAdmin):
+    base_fieldsets = ()
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = deepcopy(self.base_fieldsets or super().get_fieldsets(request, obj))
+
+        # If the object doesn't exist, then we start with every collapsible field open.
+        if obj is None:
+            for _, opts in fieldsets:
+                classes = set(opts.get("classes", ()))
+                classes.add("start-open")
+                opts["classes"] = tuple(classes)
+        else:
+            for _, opts in fieldsets:
+                classes = set(opts.get("classes", ()))
+                if "start-open" not in classes:
+                    classes.discard("start-open")
+                opts["classes"] = tuple(classes)
+        
+        return fieldsets
 
 # Reorders and groups all relevant information from the table for easy modification.
 @admin.register(Tree)
-class TreeAdmin(admin.ModelAdmin):
-    # Allows for auto expanded collpasable fields in admin view.
+class TreeAdmin(StartOpenAdmin):
+    # Allows for auto expanded collpasible fields in admin view.
     class Media:
         js = ('admin/js/admin_expand.js',)
 
     # Allows the primary key (ID) to be displayed without it being editable. 
     readonly_fields = ("id", "number",)
 
-    fieldsets = [
+    base_fieldsets = [
         ("Identifiers", {"fields": ["id", "number"], "classes": ["collapse", "start-open"]}),
         ("Adoption Status", {"fields": ["adoption_status"], "classes": ["collapse"]}),
         ("Tree Information", {"fields": ["common_name_english", "common_name_spanish", "family", "genus", "species", "dbh"], "classes": ["collapse"]}),
@@ -29,8 +53,8 @@ class TreeAdmin(admin.ModelAdmin):
     search_fields = ["number", "common_name_english", "common_name_spanish"]
 
 @admin.register(Donor)
-class DonorAdmin(admin.ModelAdmin):
-    # Allows for auto expanded collpasable fields in admin view.
+class DonorAdmin(StartOpenAdmin):
+    # Allows for auto expanded collpasible fields in admin view.
     class Media:
         js = ('admin/js/admin_expand.js',)
     
@@ -45,8 +69,8 @@ class DonorAdmin(admin.ModelAdmin):
     search_fields = ["name", "email"]
 
 @admin.register(Donation)
-class DonationAdmin(admin.ModelAdmin):
-    # Allows for auto expanded collpasable fields in admin view.
+class DonationAdmin(StartOpenAdmin):
+    # Allows for auto expanded collpasible fields in admin view.
     class Media:
         js = ('admin/js/admin_expand.js',)
 
