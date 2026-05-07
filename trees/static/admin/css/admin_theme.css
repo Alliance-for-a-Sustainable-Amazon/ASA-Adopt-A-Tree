@@ -1,0 +1,262 @@
+/* 
+admin_theme.css
+
+Stylization of the admin page.
+*/
+
+/* 
+DJANDO VARIABLE DEFINITIONS 
+*/
+html[data-theme="light"], :root {
+    --primary: #1b4332;
+    --secondary: #2d6a4f;
+
+    --body-bg: #f6f8f5;
+    --body-fg: #1b4332;
+
+    --header-bg: #1b4332;
+    --header-color: #ffffff;
+
+    --sidebar-bg: #081c15;
+    --sidebar-link-fg: #ffffff;
+    --sidebar-link-hover-bg: #52b788;
+    --sidebar-link-hover-fg: #ffffff;
+
+    --breadcrumbs-bg: #2d6a4f;
+    --breadcrumbs-fg: #ffffff;
+
+    --link-fg: #52b788;
+    --link-hover-color: #40916c;
+
+    color-scheme: light;
+}
+
+/* Removes the dark mode toggle */
+.theme-toggle {
+    display: none !important;
+}
+
+/* 
+GLOBAL
+*/
+body {
+    background-color: var(--body-bg);
+    color: var(--body-fg);
+}
+
+/* 
+HEADERS
+*/
+#header {
+    background: linear-gradient(90deg, #1b4332, #2d6a4f) !important;
+    color: white !important;
+}
+
+#site-name a {
+    color: white !important;
+    font-weight: 600;
+}
+
+/*
+BREADCRUMBS
+*/
+div.breadcrumbs {
+    background: linear-gradient(90deg, #2d6a4f, #1b4332) !important;
+    color: white;
+}
+
+div.breadcrumbs a {
+    color: white;
+}
+
+/*
+SIDEBAR
+*/
+#nav-sidebar {
+    background: #f6f8f5 !important;
+}
+
+/* Remove Django gradients and shadows */
+#nav-sidebar * {
+    box-shadow: none !important;
+    background-image: none !important;
+}
+
+/* Section headers */
+#nav-sidebar .section {
+    background-color: #2d6a4f !important;
+    color: white !important;
+    border-radius: 8px;
+    margin: 8px;
+    padding: 8px;
+}
+
+/* Links */
+#nav-sidebar a {
+    color: #2d6a4f !important;
+    border-radius: 6px;
+    margin: 2px 8px;
+    display: block;
+    padding: 6px 10px;
+}
+
+#nav-sidebar a:hover {
+    background-color: #52b788 !important;
+    color: white !important;
+}
+
+/* Active item */
+#nav-sidebar .current-model {
+    background-color: #d8f5e0 !important;
+    color: #081c15 !important;
+}
+
+/*
+MODULE CARDS
+*/
+.module {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #d8e2dc;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.module caption {
+    background-color: #2d6a4f !important;
+    color: white !important;
+}
+
+/*
+TABLES
+*/
+/* --- Header of the tables --- */
+
+/* Header row of the table */
+#result_list thead th {
+    background-color: #2d6a4f !important;
+    color: white !important;
+}
+
+/* Header links (column names) */
+#result_list thead th a {
+    color: white !important;
+    font-weight: 600;
+    display: block;
+}
+
+#result_list thead th a:hover {
+    color: #2d6a4f !important;
+}
+
+/* Sorted column */
+#result_list thead th.sorted a {
+    color: #95d5b2 !important;
+}
+
+/* --- Body of the tables --- */
+
+/* Remove green from first column (name column) */
+#result_list tbody th {
+    background: transparent !important;
+}
+
+/* Remove link background inside first column */
+#result_list tbody th a {
+    background: transparent !important;
+    color: #2d6a4f !important;
+}
+
+/* Zebra striping */
+#result_list tbody tr:nth-child(even) {
+    background-color: #eaf6ed !important;
+}
+
+#result_list tbody tr:hover {
+    background-color: #d8f5e0 !important;
+}
+
+/*
+BUTTONS
+*/
+/* Base button styling */
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+input.default {
+    background-color: #52b788 !important;
+    color: white !important;
+    border-radius: 6px;
+    border: none;
+    transition: background-color 0.2s ease,
+                transform 0.1s ease;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.submit-row input:hover,
+input.default:hover {
+    background-color: #40916c !important;
+    cursor: pointer;
+}
+
+.button:active,
+input[type="submit"]:active,
+.submit-row input:active {
+    transform: scale(0.98);
+}
+
+.object-tools a {
+    background-color: #52b788 !important;
+    border-radius: 20px;
+    padding: 6px 14px;
+    transition: background-color 0.2s ease;
+}
+
+.object-tools a:hover {
+    background-color: #40916c !important;
+}
+
+/*
+FILTER BOX
+*/
+#changelist-filter h2 {
+    background-color: #40916c !important;
+    color: white !important;
+}
+
+/*
+FORMS
+*/
+input, textarea, select {
+    border-radius: 6px;
+    border: 1px solid #d8e2dc;
+}
+
+/*
+MESSAGES
+*/
+.messagelist .success {
+    background-color: #95d5b2;
+}
+
+.messagelist .error {
+    background-color: #f28482;
+}
+
+/*
+FIELDSET HEADERS
+*/
+.module h2 {
+    background-color: #1b4332 !important;
+    color: white !important;
+}
+
+/* Selected row color */
+#result_list tr.selected,
+#result_list tr.selected td,
+#result_list tr.selected th {
+    background-color: #d8f5e0 !important;
+    color: #1b4332 !important;
+}
