@@ -36,6 +36,7 @@ jobs:
       - name: Run deployment script
         env:
           DJANGO_SETTINGS_MODULE: adopt_a_tree.settings_azure
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
           DJANGO_ADMIN_USERNAME: ${{ secrets.DJANGO_ADMIN_USERNAME }}
           DJANGO_ADMIN_PASSWORD: ${{ secrets.DJANGO_ADMIN_PASSWORD }}
           DJANGO_ADMIN_EMAIL: ${{ secrets.DJANGO_ADMIN_EMAIL }}
