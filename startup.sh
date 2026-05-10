@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Collect static files"
+python manage.py collectstatic --noinput --settings=adopt_a_tree.settings_azure
+
 echo "Applying migrations"
 python manage.py migrate --noinput --settings=adopt_a_tree.settings_azure
 
