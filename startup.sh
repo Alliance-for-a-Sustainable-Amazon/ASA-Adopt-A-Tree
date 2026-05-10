@@ -6,7 +6,7 @@ set -e
 echo "Applying migrations"
 python manage.py migrate --settings=adopt_a_tree.settings_azure
 
-echo " Collecting static files"
+echo "Collecting static files"
 python manage.py collectstatic --noinput --settings=adopt_a_tree.settings_azure
 
 # Creates superuser based on environment variables. If user already exists, 
