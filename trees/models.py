@@ -69,7 +69,7 @@ class Tree(models.Model):
 class Donation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     number = models.IntegerField(default=0, help_text="'Number' automatically calculated after entry creation.")
-    date = models.DateTimeField(default=timezone.now(), help_text="Date is automatically set.")
+    date = models.DateTimeField(default=timezone.now, help_text="Date is automatically set.")
     donor_id = models.ForeignKey(Donor, on_delete=models.SET_NULL, null=True, blank=True)
     donor_name = models.CharField(max_length=255)
     donor_chosen_name = models.CharField(max_length=255, help_text="Name that will appear on the adopted tree.")
