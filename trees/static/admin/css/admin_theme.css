@@ -8,27 +8,49 @@ Stylization of the admin page.
 DJANDO VARIABLE DEFINITIONS 
 */
 html[data-theme="light"], :root {
-    --primary: #1b4332;
-    --secondary: #2d6a4f;
+    color-scheme: light;
 
     --body-bg: #f6f8f5;
     --body-fg: #1b4332;
 
+    --darkened-bg: #eaf6ed;
+    --selected-bg: #d8f5e0;
+
+    --primary: #1b4332;
+    --secondary: #2d6a4f;
+    --accent: #52b788;
+
+    --hairline-color: #d8e2dc;
+    --border-color: #d8e2dc;
+
     --header-bg: #1b4332;
     --header-color: #ffffff;
-
-    --sidebar-bg: #081c15;
-    --sidebar-link-fg: #ffffff;
-    --sidebar-link-hover-bg: #52b788;
-    --sidebar-link-hover-fg: #ffffff;
 
     --breadcrumbs-bg: #2d6a4f;
     --breadcrumbs-fg: #ffffff;
 
-    --link-fg: #52b788;
+    --link-fg: #2d6a4f;
     --link-hover-color: #40916c;
 
-    color-scheme: light;
+    --button-bg: #52b788;
+    --button-hover-bg: #40916c;
+    --default-button-bg: #52b788;
+    --default-button-hover-bg: #40916c;
+
+    --close-button-bg: #ba2121;
+    --close-button-hover-bg: #a41515;
+
+    --message-success-bg: #95d5b2;
+    --message-warning-bg: #ffe08a;
+    --message-error-bg: #f28482;
+
+    --object-tools-bg: #52b788;
+    --object-tools-hover-bg: #40916c;
+
+    --module-header-bg: #2d6a4f;
+    --module-header-fg: white;
+
+    --dark-bg: #f6f8f5;
 }
 
 /* Removes the dark mode toggle */
@@ -249,8 +271,9 @@ MESSAGES
 /*
 FIELDSET HEADERS
 */
-.module h2 {
-    background-color: #1b4332 !important;
+.module h2,
+.inline-group h2 {
+    background: #1b4332 !important;
     color: white !important;
 }
 
@@ -284,9 +307,37 @@ fieldset,
     background-color: #f6f8f5 !important;
 }
 
-/* Fix fieldset/module headers */
-.module h2,
-.inline-group h2 {
-    background: #1b4332 !important;
-    color: white !important;
+/* Kill remaining dark-mode backgrounds */
+.sidebar,
+#changelist-filter,
+#toolbar,
+#toolbar form,
+#toolbar input,
+#toolbar select,
+#nav-sidebar .current-app,
+#nav-sidebar .model-current {
+    background: #f6f8f5 !important;
+    color: #1b4332 !important;
+}
+
+/* Ensure search/filter areas stay light */
+#toolbar,
+#changelist-filter {
+    border-left: 1px solid #d8e2dc !important;
+}
+
+/* Fix black alternating rows in sidebar */
+#nav-sidebar tr,
+#nav-sidebar td,
+#nav-sidebar th {
+    background: transparent !important;
+}
+
+#changelist-filter a {
+    color: #2d6a4f !important;
+}
+
+#changelist-filter li.selected a {
+    color: #1b4332 !important;
+    font-weight: 600;
 }
