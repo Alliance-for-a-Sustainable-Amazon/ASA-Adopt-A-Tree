@@ -77,7 +77,8 @@ SIDEBAR
 }
 
 /* Remove Django gradients and shadows */
-#nav-sidebar * {
+#nav-sidebar a,
+#nav-sidebar .section {
     box-shadow: none !important;
     background-image: none !important;
 }
@@ -259,4 +260,33 @@ FIELDSET HEADERS
 #result_list tr.selected th {
     background-color: #d8f5e0 !important;
     color: #1b4332 !important;
+}
+
+/* Force module/card backgrounds */
+.module,
+.inline-group,
+.selector,
+.selector-available,
+.selector-chosen,
+fieldset,
+.aligned,
+.form-row {
+    background-color: white !important;
+    color: #1b4332 !important;
+}
+
+/* Ensure admin content areas stay light */
+#content,
+#content-main,
+.change-form,
+.change-list,
+.dashboard {
+    background-color: #f6f8f5 !important;
+}
+
+/* Fix fieldset/module headers */
+.module h2,
+.inline-group h2 {
+    background: #1b4332 !important;
+    color: white !important;
 }
