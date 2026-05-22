@@ -17,6 +17,9 @@ environ.Env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET')
+
 DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
@@ -34,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +92,9 @@ DATABASES = {
     }
 }
 
-CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
+#TODO: Uncomment this out and remove CORS_ALLOW_ALL_ORIGINS for production
+#CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_METHODS = ["GET"]
 

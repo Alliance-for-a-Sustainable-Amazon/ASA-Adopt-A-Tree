@@ -43,14 +43,14 @@ class TreeAdmin(StartOpenAdmin):
     base_fieldsets = [
         ("Identifiers", {"fields": ["id", "number"], "classes": ["collapse", "start-open"]}),
         ("Adoption Status", {"fields": ["adoption_status"], "classes": ["collapse"]}),
-        ("Tree Information", {"fields": ["common_name_english", "common_name_spanish", "family", "genus", "species", "dbh"], "classes": ["collapse"]}),
-        ("Location Information", {"fields": ["lat", "long", "location", "location_description"], "classes": ["collapse"]}),
+        ("Tree Information", {"fields": ["common_name_english", "common_name_spanish", "family", "genus", "species", "dbh", "age"], "classes": ["collapse"]}),
+        ("Location Information", {"fields": ["lat", "lng", "location", "location_description"], "classes": ["collapse"]}),
         ("Study Information", {"fields": ["study", "permanent_tag"], "classes": ["collapse"]}),
         ("Notes", {"fields": ["notes"], "classes": ["collapse"]}),
     ]
     list_display = ["common_name_english", "common_name_spanish", "number", "display_adoption_status"]
     list_filter = ["adoption_status"]
-    search_fields = ["number", "common_name_english", "common_name_spanish"]
+    search_fields = ["id", "number", "common_name_english", "common_name_spanish"]
 
 @admin.register(Donor)
 class DonorAdmin(StartOpenAdmin):
