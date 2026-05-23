@@ -3,7 +3,8 @@ from .views import (
     tree_map_data, 
     tree_detail_data,
     create_checkout_session,
-    stripe_webhook
+    stripe_webhook,
+    tree_updates
 )
 
 app_name = "trees"
@@ -14,5 +15,6 @@ urlpatterns = [
     path('tree-data/', tree_map_data),
     path('tree-detail/<uuid:id>/', tree_detail_data),
     path('create-checkout-session/', create_checkout_session),
-    path('stripe-webhook/', stripe_webhook)
+    path('stripe-webhook/', stripe_webhook),
+    path('tree-updates/', tree_updates)
 ]

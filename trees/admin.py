@@ -38,10 +38,11 @@ class TreeAdmin(StartOpenAdmin):
         js = ('admin/js/admin_expand.js',)
 
     # Allows the primary key (ID) to be displayed without it being editable. 
-    readonly_fields = ("id", "number",)
+    readonly_fields = ("id", "number", "created_at", "updated_at")
 
     base_fieldsets = [
         ("Identifiers", {"fields": ["id", "number"], "classes": ["collapse", "start-open"]}),
+        ("Date Information", {"fields": ["created_at", "updated_at"], "classes": ["collapse"]}),
         ("Adoption Status", {"fields": ["adoption_status"], "classes": ["collapse"]}),
         ("Tree Information", {"fields": ["common_name_english", "common_name_spanish", "family", "genus", "species", "dbh", "age"], "classes": ["collapse"]}),
         ("Location Information", {"fields": ["lat", "lng", "location", "location_description"], "classes": ["collapse"]}),

@@ -28,6 +28,8 @@ class Tree(models.Model):
         ADOPTED = 'adopted', 'Adopted'
 
     modified = models.TextField(blank=True, null=True, help_text="'Modified' automatically calculated after entry creation.")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     number = models.IntegerField(default=0, blank=True, help_text="'Number' automatically calculated after entry creation.")
     permanent_tag = models.CharField(max_length=255, null=True, blank=True)

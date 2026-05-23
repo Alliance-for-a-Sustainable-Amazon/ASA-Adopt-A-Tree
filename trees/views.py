@@ -30,10 +30,25 @@ MODEL_MAP = {
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+@api_view(['GET'])
+def tree_updates(request):
+    latest_tree = Tree.objects.order_by("-updated_at").first()
+
+    latest_update = None
+    if latest_tree:
+        latest_update = latest_tree.updated_at
+
+    tree_count = Tree.objects.count()
+
+    return Response({
+        "last_updated": latest_update,
+        "tree_count": tree_count
+    })
+
 # Creates a view to display all basic tree information for map markers
 @api_view(['GET'])
 def tree_map_data(request):
-    trees = Tree.objects.select_related('donation').all()
+    trees = Tree.objects.select_related("donation").all()
 
     serializer = TreeMapSerializer(trees, many=True)
 
@@ -76,6 +91,21 @@ def create_checkout_session(request):
                 }
             ],
 
+            custom_fields=[
+                {
+                    "key": "chosen_name",
+                    "label": {
+                        "type": "custom",
+                        "custom": "Public display name. This defaults to Anonymous."
+                    },
+                    "type": "text",
+                    "optional": True,
+                    "text": {
+                        "maximum_length": 50
+                    }
+                }
+            ],
+
             #TODO: Change these to actual site urls once they are ready
             success_url="https://example.com/success",
             cancel_url="https://example.com/cancel",
@@ -83,14 +113,12 @@ def create_checkout_session(request):
             # This data gets passed through to the webhook. Allows webhook to update tree adoption status and donations
             metadata={
                 "tree_id": str(tree_id)
-                #TODO: Add donor chosen name
             },
 
             # Metadata that shows up on the Stripe portal
             payment_intent_data={
                 "metadata": {
                     "tree_id": str(tree_id)
-                    #TODO: Add donor chosen name
                 }
             }
         )
@@ -148,7 +176,18 @@ def stripe_webhook(request):
                 print("Invalid tree ID")
                 return HttpResponse(status=400)
 
-            #TODO: Add donor chosen name
+            # Gets chosen name from the custom field.
+            chosen_name = None
+            if session["custom_fields"]:
+                for field in session["custom_fields"]:
+                    if field["key"] == "chosen_name":
+                        if field["text"]:
+                            chosen_name = field["text"]["value"]
+                        
+                        break
+            
+
+
             
             customer_details = session["customer_details"]
 
@@ -230,8 +269,14 @@ def stripe_webhook(request):
                     amount=donation_amount,
                     currency=session["currency"],
                     donor_name=customer_name,
-                    #TODO: Add donor chosen name
-                    payment_method=payment_method
+                    payment_method=payment_method,
+                    # Updates the donor_chosen_name if it is provided. Otherwise nothing is set and the model
+                    # defaults it to Anonymous.
+                    **(
+                        {"donor_chosen_name": chosen_name}
+                        if chosen_name
+                        else {}
+                    )
                 )
 
                 print("Donation created")
