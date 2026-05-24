@@ -8,7 +8,6 @@ The current view, 'generic_list_view', works but is not set up in the urls.py fi
 
 import json, stripe, traceback, uuid
 from django.shortcuts import render, get_object_or_404
-from django.template import loader
 from django.http import HttpResponse, Http404, JsonResponse
 from django.core.paginator import Paginator
 from django.conf import settings
@@ -30,6 +29,8 @@ MODEL_MAP = {
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+# Creates a timestamp / count to see if any changes have occurred in the database. Prevents pulling all pins every 30 seconds
+# when there are no changes.
 @api_view(['GET'])
 def tree_updates(request):
     latest_tree = Tree.objects.order_by("-updated_at").first()
