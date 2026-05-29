@@ -1,6 +1,6 @@
 """
 settings_azure.py
-
+This file contains all production settings for Azure deployment and configuration with Wix Studio and Stripe.
 """
 
 from pathlib import Path
@@ -16,6 +16,10 @@ env = environ.Env(
 environ.Env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env('DJANGO_SECRET_KEY')
+
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET')
+DJANGO_API_KEY = env('DJANGO_API_KEY')
 
 DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
@@ -34,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
