@@ -1,3 +1,8 @@
+"""
+urls.py
+This file contains all app specific urls. Each url contains a unique view.
+"""
+
 from django.urls import path
 from .views import (
     tree_map_data, 

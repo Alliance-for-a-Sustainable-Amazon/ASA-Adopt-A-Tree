@@ -28,11 +28,18 @@ MODEL_MAP = {
 }
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+EXPECTED_API_KEY = settings.DJANGO_API_KEY
 
 # Creates a timestamp / count to see if any changes have occurred in the database. Prevents pulling all pins every 30 seconds
 # when there are no changes.
 @api_view(['GET'])
 def tree_updates(request):
+    api_key = request.headers.get("X-API-KEY")
+
+    # Requires API calls to have an api key for added security
+    if api_key != EXPECTED_API_KEY:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+
     latest_tree = Tree.objects.order_by("-updated_at").first()
 
     latest_update = None
@@ -49,6 +56,12 @@ def tree_updates(request):
 # Creates a view to display all basic tree information for map markers
 @api_view(['GET'])
 def tree_map_data(request):
+    api_key = request.headers.get("X-API-KEY")
+
+    # Requires API calls to have an api key for added security
+    if api_key != EXPECTED_API_KEY:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+
     trees = Tree.objects.select_related("donation").all()
 
     serializer = TreeMapSerializer(trees, many=True)
@@ -58,6 +71,12 @@ def tree_map_data(request):
 # Creates a view to display an individual tree's detailed information
 @api_view(['GET'])
 def tree_detail_data(request, id):
+    api_key = request.headers.get("X-API-KEY")
+
+    # Requires API calls to have an api key for added security
+    if api_key != EXPECTED_API_KEY:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+
     tree = get_object_or_404(Tree, id=id)
 
     serializer = TreeDetailSerializer(tree)
@@ -67,6 +86,12 @@ def tree_detail_data(request, id):
 # Creates the Stripe checkout session for the user, providing necessary metadata for webhook reading.
 @csrf_exempt
 def create_checkout_session(request):
+    api_key = request.headers.get("X-API-KEY")
+
+    # Requires API calls to have an api key for added security
+    if api_key != EXPECTED_API_KEY:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+
     if request.method != "POST":
         return JsonResponse({"error": "Invalid method"}, status=405)
     
@@ -151,6 +176,7 @@ def stripe_webhook(request):
         return HttpResponse(status=400)
     
     except stripe.error.SignatureVerificationError:
+        print("Invalid Stripe signature")
         return HttpResponse(status=400)
     
     if event["type"] == "checkout.session.completed":

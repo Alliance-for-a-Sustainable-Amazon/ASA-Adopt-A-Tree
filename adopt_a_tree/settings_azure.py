@@ -1,6 +1,6 @@
 """
 settings_azure.py
-
+This file contains all production settings for Azure deployment and configuration with Wix Studio and Stripe.
 """
 
 from pathlib import Path
@@ -19,6 +19,7 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
 STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET')
+DJANGO_API_KEY = env('DJANGO_API_KEY')
 
 DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
@@ -92,9 +93,7 @@ DATABASES = {
     }
 }
 
-#TODO: Uncomment this out and remove CORS_ALLOW_ALL_ORIGINS for production
-#CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
 
 CORS_ALLOW_METHODS = ["GET"]
 

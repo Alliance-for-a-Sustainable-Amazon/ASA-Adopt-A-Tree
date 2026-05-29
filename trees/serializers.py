@@ -1,3 +1,8 @@
+"""
+serializers.py
+This file contains the different sets of data that are available via API call. 
+"""
+
 from rest_framework import serializers
 from .models import Tree
 
@@ -33,6 +38,8 @@ class TreeDetailSerializer(serializers.ModelSerializer):
             'number',
             'name',
             'dbh',
+            'genus',
+            'species',
             'age',
             'lat',
             'lng',

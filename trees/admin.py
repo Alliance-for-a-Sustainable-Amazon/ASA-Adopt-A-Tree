@@ -86,6 +86,6 @@ class DonationAdmin(StartOpenAdmin):
         ("Tree Adopted", {"fields": ["tree_id"], "classes": ["collapse"]}),
         ("Notes", {"fields": ["notes"], "classes": ["collapse"]}),
     ]
-    list_display = ["donor_name", "number", "amount"]
+    list_display = ["donor_name", "number", "amount", "tree_id"]
     list_filter = ["date", "expiration_date", "amount"]
     search_fields = ["donor_name", "number", "tree_id", "donor_chosen_name"]
