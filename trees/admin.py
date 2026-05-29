@@ -38,19 +38,20 @@ class TreeAdmin(StartOpenAdmin):
         js = ('admin/js/admin_expand.js',)
 
     # Allows the primary key (ID) to be displayed without it being editable. 
-    readonly_fields = ("id", "number",)
+    readonly_fields = ("id", "number", "created_at", "updated_at")
 
     base_fieldsets = [
         ("Identifiers", {"fields": ["id", "number"], "classes": ["collapse", "start-open"]}),
+        ("Date Information", {"fields": ["created_at", "updated_at"], "classes": ["collapse"]}),
         ("Adoption Status", {"fields": ["adoption_status"], "classes": ["collapse"]}),
-        ("Tree Information", {"fields": ["common_name_english", "common_name_spanish", "family", "genus", "species", "dbh"], "classes": ["collapse"]}),
-        ("Location Information", {"fields": ["lat", "long", "location", "location_description"], "classes": ["collapse"]}),
+        ("Tree Information", {"fields": ["common_name_english", "common_name_spanish", "family", "genus", "species", "dbh", "age"], "classes": ["collapse"]}),
+        ("Location Information", {"fields": ["lat", "lng", "location", "location_description"], "classes": ["collapse"]}),
         ("Study Information", {"fields": ["study", "permanent_tag"], "classes": ["collapse"]}),
         ("Notes", {"fields": ["notes"], "classes": ["collapse"]}),
     ]
     list_display = ["common_name_english", "common_name_spanish", "number", "display_adoption_status"]
     list_filter = ["adoption_status"]
-    search_fields = ["number", "common_name_english", "common_name_spanish"]
+    search_fields = ["id", "number", "common_name_english", "common_name_spanish"]
 
 @admin.register(Donor)
 class DonorAdmin(StartOpenAdmin):
@@ -85,6 +86,6 @@ class DonationAdmin(StartOpenAdmin):
         ("Tree Adopted", {"fields": ["tree_id"], "classes": ["collapse"]}),
         ("Notes", {"fields": ["notes"], "classes": ["collapse"]}),
     ]
-    list_display = ["donor_name", "number", "amount"]
+    list_display = ["donor_name", "number", "amount", "tree_id"]
     list_filter = ["date", "expiration_date", "amount"]
     search_fields = ["donor_name", "number", "tree_id", "donor_chosen_name"]
