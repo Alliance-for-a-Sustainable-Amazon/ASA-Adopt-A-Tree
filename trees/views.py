@@ -289,13 +289,12 @@ def stripe_webhook(request):
                 donation_amount = Decimal(session["amount_total"]) / Decimal("100")
 
                 Donation.objects.create(
-                    donor_id=user,
+                    donor_name=user,
                     tree_id=tree,
                     stripe_session_id=stripe_session_id,
                     stripe_payment_intent=session["payment_intent"],
                     amount=donation_amount,
                     currency=session["currency"],
-                    donor_name=customer_name,
                     payment_method=payment_method,
                     # Updates the donor_chosen_name if it is provided. Otherwise nothing is set and the model
                     # defaults it to Anonymous.

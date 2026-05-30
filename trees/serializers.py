@@ -8,14 +8,14 @@ from .models import Tree
 
 # This serializer is used to obtain the bare minimum information to populate the map with tree markers
 class TreeMapSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='common_name_english')
+    local_name = serializers.CharField(source='common_name_spanish')
 
     class Meta:
         model = Tree
         fields = [
             'id',
-            'number',
-            'name',
+            'permanent_tag',
+            'local_name',
             'lat',
             'lng',
             'adoption_status',
@@ -23,7 +23,8 @@ class TreeMapSerializer(serializers.ModelSerializer):
 
 # This serializer is used to populate each marker with the tree details when the user clicks on the tree
 class TreeDetailSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='common_name_english')
+    local_name = serializers.CharField(source='common_name_spanish')
+    english_name = serializers.CharField(source='common_name_english')
 
     donor_name = serializers.CharField(
         source='donation.donor_chosen_name',
@@ -35,12 +36,11 @@ class TreeDetailSerializer(serializers.ModelSerializer):
         model = Tree
         fields = [
             'id',
-            'number',
-            'name',
-            'dbh',
+            'permanent_tag',
+            'local_name',
+            'english_name',
             'genus',
             'species',
-            'age',
             'lat',
             'lng',
             'adoption_status',
