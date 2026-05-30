@@ -33,12 +33,13 @@ class Tree(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, help_text="Primary Key (UUID) used for relations.")
     tag_id = models.CharField(max_length=255, default="XXXX-XXXX", blank=True, help_text="Auto generated: scientificNameAbbreviation-permanentTag. Ex: BEEX-0000")
     permanent_tag = models.CharField(max_length=255, help_text="Tree Tag Number: XXXX")
-    study = models.CharField(max_length=255, null=True, blank=True)
+    study = models.CharField(max_length=255, blank=True, null=True)
     family = models.CharField(max_length=255)
     genus = models.CharField(max_length=255)
     species = models.CharField(max_length=255, blank=True, null=True)
+    dbh = models.CharField(max_length=255, blank=True, null=True)
     common_name_spanish = models.CharField(max_length=255)
-    common_name_english = models.CharField(max_length=255)
+    common_name_english = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True)
     location_description = models.TextField(blank=True)
     lat = models.FloatField(default=0, help_text="Latitude: XX.XXXX / -XX.XXXX")
@@ -61,6 +62,7 @@ class Tree(models.Model):
             species = self.species[:2]
 
         sci_name_abbreviated = f"{genus}{species}"
+        #TODO: Set sci_name_abbreviated to uppercase
 
         if self.permanent_tag:
             tag_number = self.permanent_tag
