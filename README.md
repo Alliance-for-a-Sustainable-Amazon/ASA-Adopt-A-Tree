@@ -19,18 +19,24 @@ Django web application for managing tree adoptions and donor contributions on an
 ---
 
 ## Features
+### Backend
 - Track donors, donations, and trees
 - Manage tree adoption status
 - Admin dashboard for data management
+
+### Frontend
+- View tree locations on interactive map
+- View specific tree data (name, age, diameter at breast height, tag number, image)
+- Adopt trees and see already adopted trees.
 
 ---
 
 ## System Architecture
 ### Technology Stack
-- **Frontend:** HTML, CSS, JavaScript, Django templates, Google Maps API
+- **Frontend:** HTML, CSS, JavaScript, Django templates, Google Maps API, Stripe payment links
 - **Backend:** Django 6.0.2, Python 3.14.4
 - **Database:** PostgreSQL 
-- **Deployment:** Azure App Service, Azure database hosting, Wix Studio
+- **Deployment:** Azure App Service, Azure database hosting, Wix Studio, Stripe
 
 ### Architecture Visualization
 Wix Studio Frontend 
@@ -139,6 +145,7 @@ ngrok 8000
 - Enforced with:
     - **Function decorators (**`@api_view(['GET'])`**,** `@api_view(['POST'])`**):** Specifies which actions are allowed for each API view
     - `CORS_ALLOWED_ORIGINS`**:** States what websites are able to access the API views
+    - `DJANGO_API_KEY`**:** Prevents API views from being accessable without providing a secret key
 
 #### Creating Admin User via Environment Variables
 - Automated admin creation available:
@@ -187,6 +194,7 @@ ngrok 8000
 ### Frontend Functionality
 #### Map
 
+
 ---
 
 ## User Interface
@@ -209,7 +217,7 @@ ngrok 8000
 ## Deployment
 ### Azure
 - **Prerequisites:** Azure account, Azure CLI, Git, Python 3.14+
-- **Environment Variables:** `DJANGO_SECRET_KEY`, `DJANGO_SETTINGS_MODULE`, `DJANGO_DEBUG`, `DJANGO_ADMIN_EMAIL`, `DJANGO_ADMIN_USER`, `DJANGO_ADMIN_PASSWORD`, `POSTGRES_DATABASE`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT`
+- **Environment Variables:** `DJANGO_SECRET_KEY`, `DJANGO_API_KEY`, `DJANGO_SETTINGS_MODULE`, `DJANGO_DEBUG`, `DJANGO_ADMIN_EMAIL`, `DJANGO_ADMIN_USER`, `DJANGO_ADMIN_PASSWORD`, `POSTGRES_DATABASE`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `CORS_ALLOWED_ORIGINS`
 - **Steps:**
     - Create resources (resource group, app service plan, PostgreSQL server, database, web app)
     - Configure environment variables
@@ -220,31 +228,38 @@ ngrok 8000
 ### Google Cloud
 - **Prerequisites:** Google Cloud account
 - **Steps:**
+    - Configure 
 
 ### Wix Studio
 - **Prerequisites:** Wix Studio account
+- **Wix Secret Manager:** `DJANGO_API_KEY`
 - **Steps:**
     - Create frontend elements (iFrame for map, popup, Velo page code, Wix backend JSW file)
-    - 
+    - Configure Wix secrets
+    - Publish site
 
 ### Stripe
 - **Prerequisites:** Stripe account
-- **Steps:**
+- **Environment Variables:** `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+- **Steps:** 
+    - Create a webhook pointed to backend
+    - Obtain environment variables and add them to Azure
 
 ---
 
 ## Code Structure
 ### Backend
-- `trees/`: Main app (models, views, admin, templates, static, management commands)
-- `adopt_a_tree`: Project settings (development and Azure)
+- `trees/`**:** Main app (models, views, admin, templates, static, management commands)
+- `adopt_a_tree`**:** Project settings (development and Azure)
 
 ### Frontend
-- `treeApis.jsw`: 
-- Home page code:
+- `treeApis.jsw`**:** API calls to Django backend
+- **Home page code:** Contains all button functionality and Wix Studio backend calls 
+- `html1` **iFrame:** Map settings (Google Maps loading, pin loading)
 --- 
 
 ## Coding Standards
-
+TBD
 
 ---
 
