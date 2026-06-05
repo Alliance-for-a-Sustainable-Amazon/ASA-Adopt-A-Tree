@@ -4,7 +4,11 @@ This file contains the different sets of data that are available via API call.
 """
 
 from rest_framework import serializers
+from django.conf import settings
 from .models import Tree
+
+BLOB_STORAGE = settings.AZURE_BLOB_STORAGE
+BLOB_CONTAINER = settings.AZURE_BLOB_CONTAINER
 
 # This serializer is used to obtain the bare minimum information to populate the map with tree markers
 class TreeMapSerializer(serializers.ModelSerializer):
@@ -32,6 +36,12 @@ class TreeDetailSerializer(serializers.ModelSerializer):
         default=None
     )
 
+    #TODO: Comment out the image stuff
+    #image_url = serializers.SerializerMethodField()
+
+    #def get_url(self, obj):
+        #return (f"https://{BLOB_STORAGE}.blob.core.windows.net/{BLOB_CONTAINER}/{obj.tag_id}.jpg")
+
     class Meta:
         model = Tree
         fields = [
@@ -45,5 +55,5 @@ class TreeDetailSerializer(serializers.ModelSerializer):
             'lng',
             'adoption_status',
             'donor_name',
-            #TODO: Include the picture for each tree once they are set up.
+            #'image_url'
         ]

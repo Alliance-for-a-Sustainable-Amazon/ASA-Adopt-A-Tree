@@ -45,12 +45,12 @@ class TreeAdmin(admin.ModelAdmin):
         ("Identifiers", {"fields": ["id", "tag_id"]}),
         ("Date Information", {"fields": ["created_at", "updated_at"]}),
         ("Adoption Status", {"fields": ["adoption_status"]}),
-        ("Tree Information", {"fields": ["common_name_spanish", "common_name_english", "family", "genus", "species", "dbh"]}),
+        ("Tree Information", {"fields": ["common_name_spanish", "common_name_english", "family", "genus", "species", "dbh", "height"]}),
         ("Location Information", {"fields": ["lat", "lng", "location", "location_description"]}),
         ("Study Information", {"fields": ["study", "permanent_tag"]}),
         ("Notes", {"fields": ["notes"]}),
     ]
-    list_display = ["tag_id", "common_name_english", "common_name_spanish", "display_adoption_status"]
+    list_display = ["tag_id", "common_name_spanish", "common_name_english", "display_adoption_status"]
     list_filter = ["adoption_status"]
     search_fields = ["id", "tag_id", "common_name_english", "common_name_spanish"]
 

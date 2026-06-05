@@ -32,12 +32,13 @@ class Tree(models.Model):
     updated_at = models.DateTimeField(auto_now=True, help_text = "Auto generated: Month, Day, Year, Time")
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, help_text="Primary Key (UUID) used for relations.")
     tag_id = models.CharField(max_length=255, default="XXXX-XXXX", blank=True, help_text="Auto generated: scientificNameAbbreviation-permanentTag. Ex: BEEX-0000")
-    permanent_tag = models.CharField(max_length=255, help_text="Tree Tag Number: XXXX")
+    permanent_tag = models.CharField(max_length=255, help_text="Tree Tag Number: XXXX. <b>Important:</b> If permanent tag is modified, the tag in the corresponding Azure picture must also be changed.")
     study = models.CharField(max_length=255, blank=True, null=True)
     family = models.CharField(max_length=255)
     genus = models.CharField(max_length=255)
-    species = models.CharField(max_length=255, blank=True, null=True)
+    species = models.CharField(max_length=255, blank=True, null=True, help_text="<b>Important:</b> If species is modified, the taxonomy tag in the corresponding Azure picture must also be changed.")
     dbh = models.CharField(max_length=255, blank=True, null=True)
+    height = models.CharField(max_length=255, blank=True, null=True)
     common_name_spanish = models.CharField(max_length=255)
     common_name_english = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True)
@@ -55,14 +56,22 @@ class Tree(models.Model):
         else:
             genus = self.genus[:2]
 
-        # If tree has unknown species, it will be given 'SP.', 'SPP.' (multiple species in one), or '.'
-        if self.species == 'SP.' or self.species == 'SPP.' or self.species =='.' or not self.species:
+
+        if not self.species:
             species = 'XX'
         else:
-            species = self.species[:2]
+            # Prevents casing issues
+            species_upper = self.species.upper()
 
+            # If tree has unknown species, it will be given 'SP.', 'SPP.' (multiple species in one), or '.'
+            if species_upper == 'SP.' or species_upper == 'SPP.' or species_upper =='.':
+                species = 'XX'
+            else:
+                species = self.species[:2]
+
+        # Gets the first part of the tag_id
         sci_name_abbreviated = f"{genus}{species}"
-        #TODO: Set sci_name_abbreviated to uppercase
+        sci_name_abbreviated = sci_name_abbreviated.upper()
 
         if self.permanent_tag:
             tag_number = self.permanent_tag
