@@ -78,7 +78,7 @@ class Tree(models.Model):
         else:
             self.permanent_tag = "XXXX"
         
-        self.tag_id = f"{sci_name_abbreviated}-{tag_number}"
+        self.tag_id = f"{sci_name_abbreviated}_{tag_number}"
         
         super().save(*args, **kwargs)
 
