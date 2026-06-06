@@ -36,12 +36,6 @@ class TreeDetailSerializer(serializers.ModelSerializer):
         default=None
     )
 
-    image_url = serializers.SerializerMethodField(method_name="get_url")
-
-    # Gets the url to the tree image. Tree images named based on tag id
-    def get_url(self, obj):
-        return (f"https://{BLOB_STORAGE}.blob.core.windows.net/{BLOB_CONTAINER}/{obj.tag_id}.jpg")
-
     class Meta:
         model = Tree
         fields = [
@@ -57,5 +51,4 @@ class TreeDetailSerializer(serializers.ModelSerializer):
             'height',
             'adoption_status',
             'donor_name',
-            'image_url'
         ]

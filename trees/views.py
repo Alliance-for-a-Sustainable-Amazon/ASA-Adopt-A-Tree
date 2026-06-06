@@ -17,6 +17,7 @@ from django.db import transaction
 from decimal import Decimal
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from azure.storage.blob import BlobServiceClient
 from .serializers import TreeMapSerializer, TreeDetailSerializer
 
 from .models import Donor, Tree, Donation
@@ -29,6 +30,24 @@ MODEL_MAP = {
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 EXPECTED_API_KEY = settings.DJANGO_API_KEY
+AZURE_BLOB_STORAGE = settings.AZURE_BLOB_STORAGE
+AZURE_BLOB_CONTAINER = settings.AZURE_BLOB_CONTAINER
+
+blob_service_client = BlobServiceClient.from_connection_string(
+    settings.AZURE_CONNECTION_STRING
+)
+
+container_client = blob_service_client.get_container_client(
+    AZURE_BLOB_CONTAINER
+)
+
+# Helper function to find if image file exists.
+def blob_exists(blob_name):
+    try:
+        blob_client = container_client.get_blob_client(blob_name)
+        return blob_client.exists()
+    except Exception:
+        return False
 
 # Creates a timestamp / count to see if any changes have occurred in the database. Prevents pulling all pins every 30 seconds
 # when there are no changes.
@@ -81,7 +100,16 @@ def tree_detail_data(request, id):
 
     serializer = TreeDetailSerializer(tree)
 
-    return Response(serializer.data)
+    data = serializer.data
+
+    blob_name = f"{tree.tag_id}.jpg"
+
+    if blob_exists(blob_name):
+        data["image_url"] = (f"https://{AZURE_BLOB_STORAGE}.blob.core.windows.net/{AZURE_BLOB_CONTAINER}/{blob_name}")
+    else:
+        data["image_url"] = None
+
+    return Response(data)
 
 # Creates the Stripe checkout session for the user, providing necessary metadata for webhook reading.
 @csrf_exempt
