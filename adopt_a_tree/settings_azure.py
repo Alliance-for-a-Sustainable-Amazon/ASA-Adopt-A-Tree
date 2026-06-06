@@ -21,7 +21,7 @@ STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
 STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET')
 DJANGO_API_KEY = env('DJANGO_API_KEY')
 
-# Storage container for tree images
+# Production storage container for tree images
 AZURE_BLOB_STORAGE = env('AZURE_BLOB_STORAGE')
 AZURE_BLOB_CONTAINER = env('AZURE_BLOB_CONTAINER')
 
@@ -138,8 +138,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 STORAGES = {
     "default": {
