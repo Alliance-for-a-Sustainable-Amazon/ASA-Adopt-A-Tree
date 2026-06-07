@@ -155,8 +155,14 @@ ngrok 8000
     - **Management Command:** `python manage.py create_admin`
 
 ### Google Cloud Authentication
+- Enforced with:
+    - **Map Type:**`
+    - **Website Restrictions:** Google Map API can only be called by the provided website urls
 
 ### Stripe Authentication
+- Enforced with:
+    - **Secret Keys:** `STRIPE_WEBHOOK_SECRET`, `STRIPE_SECRET_KEY`
+    - **Stripe Header:** Stripe webhooks provide a secret header to prevent data from being edited or accessed by outside sources
 ---
 
 ## Core Functionality
@@ -217,7 +223,7 @@ ngrok 8000
 ## Deployment
 ### Azure
 - **Prerequisites:** Azure account, Azure CLI, Git, Python 3.14+
-- **Environment Variables:** `DJANGO_SECRET_KEY`, `DJANGO_API_KEY`, `DJANGO_SETTINGS_MODULE`, `DJANGO_DEBUG`, `DJANGO_ADMIN_EMAIL`, `DJANGO_ADMIN_USER`, `DJANGO_ADMIN_PASSWORD`, `POSTGRES_DATABASE`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `CORS_ALLOWED_ORIGINS`
+- **Environment Variables:** `DJANGO_SECRET_KEY`, `DJANGO_API_KEY`, `DJANGO_SETTINGS_MODULE`, `DJANGO_DEBUG`, `DJANGO_ADMIN_EMAIL`, `DJANGO_ADMIN_USER`, `DJANGO_ADMIN_PASSWORD`, `POSTGRES_DATABASE`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `CORS_ALLOWED_ORIGINS`, `AZURE_BLOB_STORAGE`, `AZURE_BLOB_CONTAINER`, `AZURE_CONNECTION_STRING`
 - **Steps:**
     - Create resources (resource group, app service plan, PostgreSQL server, database, web app)
     - Configure environment variables
@@ -228,7 +234,9 @@ ngrok 8000
 ### Google Cloud
 - **Prerequisites:** Google Cloud account
 - **Steps:**
-    - Configure 
+    - Configure API restrictions:
+        - API type:
+        - Website restriction:
 
 ### Wix Studio
 - **Prerequisites:** Wix Studio account
