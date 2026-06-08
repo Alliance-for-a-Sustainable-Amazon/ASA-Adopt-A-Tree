@@ -14,27 +14,32 @@
 11. [References](#references)
 
 ## Project Overview 
-Django web application for managing tree adoptions and donor contributions on an interactive map.
+Django web application for managing tree adoptions and donor contributions on an interactive map hosted through Wix Studio. The frontend allows donors to view a variety of trees within the Alliance for a Sustainable Amazon's property as well as adopt them for one year. The backend allows administrators to view, add, edit, and remove trees and donations from the database. 
+- **Important:** Although this repository only contains the Django app service, the following README file documents the entire project. The final product can be found on the [official Alliance for a Sustainable Amazon website]().
 
 ---
 
 ## Features
 ### Backend
-- Track donors, donations, and trees
-- Manage tree adoption status
-- Admin dashboard for data management
+- Django:
+    - Track donors, donations, and trees
+    - Manage tree adoption status
+    - Admin dashboard for data management
+- Wix Studio:
+    - Obtain basic information about all trees or detailed information about individual trees
+    - Create Stripe payment links
 
 ### Frontend
 - View tree locations on interactive map
-- View specific tree data (name, age, diameter at breast height, tag number, image)
-- Adopt trees and see already adopted trees.
+- Access specific tree data (name, diameter at breast height, height, tag number, image)
+- Adopt trees and view already adopted trees.
 
 ---
 
 ## System Architecture
 ### Technology Stack
 - **Frontend:** HTML, CSS, JavaScript, Django templates, Google Maps API, Stripe payment links
-- **Backend:** Django 6.0.2, Python 3.14.4
+- **Backend:** Django 6.0.2, Python 3.14.4, Wix Studio backend
 - **Database:** PostgreSQL 
 - **Deployment:** Azure App Service, Azure database hosting, Wix Studio, Stripe
 
@@ -50,6 +55,8 @@ Stripe Webhooks
 ---
 
 ## Setup Instructions
+**Important:** These setup explinations pertain to local development and testing. For information on how to configure each part for deployment, see [Deployment](#deployment)
+
 ### Setup Prerequisites
 - Python 3.14+
 - Stripe CLI 1.41+ 
@@ -91,34 +98,31 @@ python manage.py runserver
 ### Stripe Setup:
 1. Create or log into your Stripe account through the Stripe dashboard
     - Make sure you enter the Testing Suite for development
-2. Obtain Stripe API keys on the Stripe dashboard:
-    - Secret Key
-    - Publishable Key
-3. Add the Secret Key to the `.env` file under `STRIPE_SECRET_KEY`
-4. In a new terminal, start Stripe webhook:
-```bash
-stripe listen --forward-to localhost:8000/api/stripe-webhook
-```
-5. Copy the generated webhook secret and add it to the `.env` file under `STRIPE_WEBHOOK_SECRET`
+2. Obtain Stripe secret key on the dashboard
+3. Add the secret key to the `.env` file under `STRIPE_SECRET_KEY`
+4. Open the Developer tab
+5. Create a new webhook:
+    - Set the URL: `your-local-or-production-link/api/stripe-webhook/`
+    - Copy the webhook signing secret
+6. Add the webhook signing secret to the `.env` file under `STRIPE_WEBHOOK_SECRET`
+
+### Wix Studio Setup:
+1. Open Wix Studio site
+2. Enable Velo Dev mode
+3. Duplicate the current page containing the map
+4. Make the duplicated page unindexable and set the set the URL to some random string
+3. Configure the Backend API URL:
+    - Update `ADD_VAR_NAME_HERE` in `treeApis.jsw` to point toward hosting service URL (ngrok, etc)
+4. Publish site
 
 ### ngrok Setup (optional):
-If doing local development and testing, you can use ngrok to host your Django localhost.
+**Important:** Although ngrok is marked as optional, some form of hosting is necessary to allow Wix Studio and Stripe to access the localhost.
+
 1. In a new terminal, start ngrok:
 ```bash
 ngrok 8000
 ```
-2. Copy the URL that appears in the terminal to update the Wix Studio API URL
-
-### Wix Studio Setup:
-1. Open the Wix Studio site
-2. Enable Velo Dev mode
-3. Configure the Backend API URL
-    - Update the API URL in `treeApis.jsw` to point toward:
-        - Local Development:
-            - ngrok URL
-        - Production:
-            - Azure URL
-4. Publish the site
+2. Copy the URL that appears in the terminal and update `ADD_VAR_NAME_HERE` in `treeApis.jsw` on Wix Studio
 ---
 
 ## Database Structure
@@ -156,8 +160,8 @@ ngrok 8000
 
 ### Google Cloud Authentication
 - Enforced with:
-    - **Map Type:**`
-    - **Website Restrictions:** Google Map API can only be called by the provided website urls
+    - **API restrictions:** Maps Javascript API, Maps Static API
+    - **Website restrictions:** Google Map API can only be called by the provided website urls
 
 ### Stripe Authentication
 - Enforced with:
@@ -234,16 +238,19 @@ ngrok 8000
 ### Google Cloud
 - **Prerequisites:** Google Cloud account
 - **Steps:**
-    - Configure API restrictions:
-        - API type:
-        - Website restriction:
+    - Configure restrictions:
+        - API restrictions: Maps JavaScript API, Maps Static API
+        - Application restrictions (Websites): Add the necessary websites to this section
+            - **Important:** Wix Studio requires a **fileusr** link, not just the website domain. This can be found using Inspect Element and copying the link provided by the Google Maps error message when the map is not loading.
+    - Copy API key
+    - Add key into the map iframe on Wix Studio
 
 ### Wix Studio
 - **Prerequisites:** Wix Studio account
-- **Wix Secret Manager:** `DJANGO_API_KEY`
+- **Wix Studio Secret Manager:** `DJANGO_API_KEY`
 - **Steps:**
-    - Create frontend elements (iFrame for map, popup, Velo page code, Wix backend JSW file)
-    - Configure Wix secrets
+    - Create frontend elements (iframe for map, popup, Velo page code, Wix Studio backend JSW file)
+    - Configure Wix Studio secrets
     - Publish site
 
 ### Stripe
@@ -257,13 +264,18 @@ ngrok 8000
 
 ## Code Structure
 ### Backend
-- `trees/`**:** Main app (models, views, admin, templates, static, management commands)
-- `adopt_a_tree`**:** Project settings (development and Azure)
+- Django:
+    - `trees/`**:** Main app (models, views, admin, templates, static, management commands)
+    - `adopt_a_tree`**:** Project settings
+- Wix Studio:
+    - `treeApis.jsw`**:** API calls to Django backend
+
 
 ### Frontend
-- `treeApis.jsw`**:** API calls to Django backend
 - **Home page code:** Contains all button functionality and Wix Studio backend calls 
-- `html1` **iFrame:** Map settings (Google Maps loading, pin loading)
+- `html1` **iframe:** Map settings (Google Maps loading, pin loading)
+- `adoptionButton` **iframe:** Holds payment link functionality
+- `treeImage` **iframe:** Image monitoring and deployment
 --- 
 
 ## Coding Standards
@@ -272,4 +284,14 @@ TBD
 ---
 
 ## References
-TBD
+- [Official Django documentation]()
+
+- [Official Wix Studio documentation]()
+
+- [Official Stripe documentation]()
+
+- [Microsoft documentation on setting up a Django app service](https://learn.microsoft.com/en-us/azure/app-service/tutorial-python-postgresql-app-django?tabs=copilot&pivots=azure-portal)
+
+- ASA Adopt-A-Tree maintainers
+
+- More information pertaining to setup and functionality of the project can be found on the [official final report]()
