@@ -46,6 +46,7 @@ class Tree(models.Model):
     lat = models.FloatField(default=0, help_text="Latitude: XX.XXXX / -XX.XXXX")
     lng = models.FloatField(default=0, help_text="Longitude: XX.XXXX / -XX.XXXX")
     adoption_status = models.CharField(max_length=10, choices=AdoptionChoices.choices, default=AdoptionChoices.ADOPTABLE)
+    species_description = models.TextField(blank=True, default='')
     notes = models.TextField(blank=True, default='')
 
     # Overrides the save function in order to auto generate a tag number based on provided information
@@ -105,6 +106,7 @@ class Donation(models.Model):
     currency = models.CharField(max_length=10, default="")
     payment_method = models.CharField(max_length=255)
     expiration_date = models.DateTimeField(blank=True, null=True, help_text="'Expiration Date' is automatically calculated.")
+    expiration_processed = models.BooleanField(default=False)
     tree_id = models.OneToOneField(Tree, on_delete=models.SET_NULL, null=True, blank=True, related_name="donation")
     notes = models.TextField(blank=True, default='')
 

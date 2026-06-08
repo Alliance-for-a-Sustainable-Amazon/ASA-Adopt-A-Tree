@@ -11,6 +11,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, Http404, JsonResponse
 from django.core.paginator import Paginator
 from django.conf import settings
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
@@ -80,6 +81,25 @@ def tree_map_data(request):
     # Requires API calls to have an api key for added security
     if api_key != EXPECTED_API_KEY:
         return JsonResponse({"error": "Unauthorized"}, status=403)
+    
+    today = timezone.now().date()
+
+    # Gets all unprocessed expired donations
+    expired_donations = Donation.objects.filter(
+        expiration_date__lt=today,
+        expiration_processed=False
+    )
+
+    # Allows trees with expired donations to be adoptable again.
+    for donation in expired_donations:
+        donation.tree_id.adoption_status = "adoptable"
+        donation.tree.save(updated_fields=["adoption_status"])
+
+        donation.expiration_processed = True
+        donation.save(updated_fields=["expiration_processed"])
+
+        #TODO: Figure out how to remove the tree_id from the donation once the WiFi is back on.
+
 
     trees = Tree.objects.select_related("donation").all()
 
