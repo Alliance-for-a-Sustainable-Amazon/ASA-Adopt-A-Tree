@@ -93,10 +93,12 @@ def tree_map_data(request):
     # Allows trees with expired donations to be adoptable again.
     for donation in expired_donations:
         donation.tree_id.adoption_status = "adoptable"
-        donation.tree.save(updated_fields=["adoption_status"])
+        donation.tree_id.save(update_fields=["adoption_status"])
 
         donation.expiration_processed = True
-        donation.save(updated_fields=["expiration_processed"])
+        donation.tree_id = None
+        donation.save(update_fields=["expiration_processed", "tree_id"])
+
 
         #TODO: Figure out how to remove the tree_id from the donation once the WiFi is back on.
 
