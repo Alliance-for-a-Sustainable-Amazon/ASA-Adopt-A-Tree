@@ -150,6 +150,7 @@ def create_checkout_session(request):
         data = json.loads(request.body)
 
         tree_id = data.get("tree_id")
+        tree_tag_id = data.get("tree_tag_id")
 
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -187,15 +188,22 @@ def create_checkout_session(request):
             success_url="https://example.com/success",
             cancel_url="https://example.com/cancel",
 
+            #TODO: Uncomment this out once terms and service has been configured
+            #consent_collection={
+            #    "terms_of_service": "required"
+            #},
+
             # This data gets passed through to the webhook. Allows webhook to update tree adoption status and donations
             metadata={
-                "tree_id": str(tree_id)
+                "tree_id": str(tree_id),
+                "tree_tag_id": str(tree_tag_id)
             },
 
             # Metadata that shows up on the Stripe portal
             payment_intent_data={
                 "metadata": {
-                    "tree_id": str(tree_id)
+                    "tree_id": str(tree_id),
+                    "tree_tag_id": str(tree_tag_id)
                 }
             }
         )

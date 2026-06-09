@@ -18,7 +18,7 @@ class TreeMapSerializer(serializers.ModelSerializer):
         model = Tree
         fields = [
             'id',
-            'permanent_tag',
+            'tag_id',
             'local_name',
             'lat',
             'lng',
