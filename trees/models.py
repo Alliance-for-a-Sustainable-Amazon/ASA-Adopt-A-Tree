@@ -99,6 +99,8 @@ class Donation(models.Model):
     number = models.IntegerField(default=0, help_text="'Number' automatically calculated after entry creation.")
     date = models.DateTimeField(default=timezone.now, help_text="Date is automatically set.")
     donor_name = models.ForeignKey(Donor, on_delete=models.SET_NULL, null=True, blank=True, related_name="donations")
+    # Foreign keys are not searchable so make a hidden field that allows admins to search.
+    searchable_donor_name = models.CharField(max_length=255, default="", blank=True)
     donor_chosen_name = models.CharField(max_length=255, default="Anonymous", help_text="Name that will appear on the adopted tree.")
     stripe_session_id = models.CharField(max_length=255, unique=True, default="")
     stripe_payment_intent = models.CharField(max_length=255, default="")
@@ -108,6 +110,8 @@ class Donation(models.Model):
     expiration_date = models.DateTimeField(blank=True, null=True, help_text="'Expiration Date' is automatically calculated.")
     expiration_processed = models.BooleanField(default=False)
     tree_id = models.OneToOneField(Tree, on_delete=models.SET_NULL, null=True, blank=True, related_name="donation", help_text="Tag ID of the adopted tree. Automatically set upon adoption.")
+    # Foreign keys are not searchable so make a hidden field that allows admins to search.
+    searchable_tree_id = models.CharField(max_length=255, default="", blank=True)
     expired_tree_id = models.CharField(max_length=255, default="", blank=True, help_text="Automatically set upon tree expiration.")
     notes = models.TextField(blank=True, default="")
 

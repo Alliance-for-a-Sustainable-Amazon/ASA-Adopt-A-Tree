@@ -99,10 +99,9 @@ def tree_map_data(request):
         donation.expiration_processed = True
         donation.expired_tree_id = donation.tree_id.tag_id
         donation.tree_id = None
-        donation.save(update_fields=["expiration_processed", "tree_id", "expired_tree_id"])
-
-
-        #TODO: Figure out how to remove the tree_id from the donation once the WiFi is back on.
+        # Don't need tree to be searchable from tree_id anymore
+        donation.searchable_tree_id = ""
+        donation.save(update_fields=["expiration_processed", "tree_id", "expired_tree_id", "searchable_tree_id"])
 
 
     trees = Tree.objects.select_related("donation").all()
@@ -342,7 +341,9 @@ def stripe_webhook(request):
 
                 Donation.objects.create(
                     donor_name=user,
+                    searchable_donor_name=user.name,
                     tree_id=tree,
+                    searchable_tree_id=tree.tag_id,
                     stripe_session_id=stripe_session_id,
                     stripe_payment_intent=session["payment_intent"],
                     amount=donation_amount,
