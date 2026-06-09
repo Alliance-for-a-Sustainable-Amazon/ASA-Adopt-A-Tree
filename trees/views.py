@@ -185,8 +185,8 @@ def create_checkout_session(request):
             ],
 
             #TODO: Change these to actual site urls once they are ready
-            success_url="https://example.com/success",
-            cancel_url="https://example.com/cancel",
+            success_url="https://maxwelleclark25.wixstudio.com/map-testing/payment-result?result=success",
+            cancel_url="https://maxwelleclark25.wixstudio.com/map-testing/payment-result?result=cancelled",
 
             #TODO: Uncomment this out once terms and service has been configured
             #consent_collection={

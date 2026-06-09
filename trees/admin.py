@@ -87,6 +87,6 @@ class DonationAdmin(admin.ModelAdmin):
         ("Tree Adopted", {"fields": ["tree_id", "expired_tree_id"]}),
         ("Notes", {"fields": ["notes"]}),
     ]
-    list_display = ["donor_name", "number", "amount", "tree_id", "expired_tree_id"]
+    list_display = ["searchable_donor_name", "number", "amount", "tree_id", "expired_tree_id"]
     list_filter = ["date", "expiration_date"]
     search_fields = ["searchable_donor_name", "searchable_tree_id", "number", "donor_chosen_name", "expired_tree_id"]
