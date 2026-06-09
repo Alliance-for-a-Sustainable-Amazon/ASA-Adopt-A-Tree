@@ -77,14 +77,14 @@ class DonationAdmin(admin.ModelAdmin):
         js = ('admin/js/admin_expand.js',)
 
     # Allows the primary keys (ID) to be displayed without it being editable. 
-    readonly_fields = ("id", "number", "date", "expiration_date", "donor_name", "tree_id")
+    readonly_fields = ("id", "number", "date", "expiration_date", "donor_name", "tree_id", "expired_tree_id")
 
     fieldsets = [
         ("Identifiers", {"fields": ["id", "number"]}),
         ("Donation Date and Expiration", {"fields": ["date", "expiration_date"]}),
         ("Donation Information", {"fields": ["amount", "payment_method"]}),
         ("Donor Information", {"fields": ["donor_name", "donor_chosen_name"]}),
-        ("Tree Adopted", {"fields": ["tree_id"]}),
+        ("Tree Adopted", {"fields": ["tree_id", "expired_tree_id"]}),
         ("Notes", {"fields": ["notes"]}),
     ]
     list_display = ["donor_name", "number", "amount", "tree_id"]

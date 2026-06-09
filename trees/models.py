@@ -46,8 +46,8 @@ class Tree(models.Model):
     lat = models.FloatField(default=0, help_text="Latitude: XX.XXXX / -XX.XXXX")
     lng = models.FloatField(default=0, help_text="Longitude: XX.XXXX / -XX.XXXX")
     adoption_status = models.CharField(max_length=10, choices=AdoptionChoices.choices, default=AdoptionChoices.ADOPTABLE)
-    species_description = models.TextField(blank=True, default='')
-    notes = models.TextField(blank=True, default='')
+    species_description = models.TextField(blank=True, default="")
+    notes = models.TextField(blank=True, default="")
 
     # Overrides the save function in order to auto generate a tag number based on provided information
     def save(self, *args, **kwargs):
@@ -107,8 +107,9 @@ class Donation(models.Model):
     payment_method = models.CharField(max_length=255)
     expiration_date = models.DateTimeField(blank=True, null=True, help_text="'Expiration Date' is automatically calculated.")
     expiration_processed = models.BooleanField(default=False)
-    tree_id = models.OneToOneField(Tree, on_delete=models.SET_NULL, null=True, blank=True, related_name="donation")
-    notes = models.TextField(blank=True, default='')
+    tree_id = models.OneToOneField(Tree, on_delete=models.SET_NULL, null=True, blank=True, related_name="donation", help_text="Tag ID of the adopted tree. Automatically set upon adoption.")
+    expired_tree_id = models.CharField(max_length=255, default="", blank=True, help_text="Automatically set upon tree expiration.")
+    notes = models.TextField(blank=True, default="")
 
     # Overrides the save function to auto generate listed fields: number, expiration_date
     def save(self, *args, **kwargs):

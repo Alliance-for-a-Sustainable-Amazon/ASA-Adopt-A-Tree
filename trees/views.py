@@ -73,7 +73,8 @@ def tree_updates(request):
         "tree_count": tree_count
     })
 
-# Creates a view to display all basic tree information for map markers
+# Creates a view to display all basic tree information for map markers. Also checks for expired adoptions
+# and resets said trees to adoptable again before sending out the tree information.
 @api_view(['GET'])
 def tree_map_data(request):
     api_key = request.headers.get("X-API-KEY")
@@ -96,8 +97,9 @@ def tree_map_data(request):
         donation.tree_id.save(update_fields=["adoption_status"])
 
         donation.expiration_processed = True
+        donation.expired_tree_id = donation.tree_id.tag_id
         donation.tree_id = None
-        donation.save(update_fields=["expiration_processed", "tree_id"])
+        donation.save(update_fields=["expiration_processed", "tree_id", "expired_tree_id"])
 
 
         #TODO: Figure out how to remove the tree_id from the donation once the WiFi is back on.
