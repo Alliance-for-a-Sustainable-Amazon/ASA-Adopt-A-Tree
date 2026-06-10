@@ -12,7 +12,7 @@ from django.http import HttpResponse, Http404, JsonResponse
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
@@ -210,10 +210,11 @@ def create_checkout_session(request):
                     }
                 }
             ],
+            expires_at=int((timezone.now() + timedelta(minutes=30)).timestamp()),
 
             #TODO: Change these to actual site urls once they are ready
-            success_url="https://maxwelleclark25.wixstudio.com/map-testing/payment-result?result=success",
-            cancel_url="https://maxwelleclark25.wixstudio.com/map-testing/payment-result?result=cancelled",
+            success_url="https://www.sustainableamazon.org/payment-results-41818?result=success",
+            cancel_url="https://www.sustainableamazon.org/payment-result-41818?result=cancelled",
 
             #TODO: Uncomment this out once terms and service has been configured
             #consent_collection={
