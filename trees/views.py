@@ -164,6 +164,8 @@ def create_checkout_session(request):
                 status=200
             )
         
+        # Check both if the timer exists and if the specific time as trees with incomplete adoptions will still have an old
+        # reservation timer
         if tree.reserve_until:
             if tree.reserve_until > timezone.now():
                 return JsonResponse(
