@@ -12,6 +12,7 @@ from django.http import HttpResponse, Http404, JsonResponse
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.utils import timezone
+from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
@@ -151,6 +152,30 @@ def create_checkout_session(request):
 
         tree_id = data.get("tree_id")
         tree_tag_id = data.get("tree_tag_id")
+
+        tree = Tree.objects.get(id=tree_id)
+
+        # Set status on these to 200, even though they are errors in order to bypass Wix generic error message
+        if tree.adoption_status == "adopted":
+            return JsonResponse(
+                {
+                    "error": "adopted"
+                },
+                status=200
+            )
+        
+        if tree.reserve_until:
+            if tree.reserve_until > timezone.now():
+                return JsonResponse(
+                    {
+                        "error": "reserved"
+                    },
+                    status=200
+                )
+        
+        # Filter for the specific tree instead of using the 'tree' instance in order to bypass save() function. 
+        # This prevents 'updated_at' from being updated which would cause pin data to be sent to Wix again
+        Tree.objects.filter(id=tree_id).update(reserve_until=timezone.now() + timedelta(minutes=5))
 
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -373,6 +398,8 @@ def stripe_webhook(request):
 
                 
                 tree.adoption_status = "adopted"
+                # Reset the reserve timer for future adoptions
+                tree.reserve_until = None
                 tree.save()
                 
                 print("Tree adoption updated")

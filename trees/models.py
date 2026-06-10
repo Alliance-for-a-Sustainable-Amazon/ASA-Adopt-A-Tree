@@ -30,6 +30,7 @@ class Tree(models.Model):
     modified = models.TextField(blank=True, null=True, help_text="'Modified' automatically calculated after entry creation.")
     created_at = models.DateTimeField(auto_now_add=True, help_text="Auto generated: Month, Day, Year, Time")
     updated_at = models.DateTimeField(auto_now=True, help_text = "Auto generated: Month, Day, Year, Time")
+    reserve_until = models.DateTimeField(null=True, blank=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, help_text="Primary Key (UUID) used for relations.")
     tag_id = models.CharField(max_length=255, default="XXXX-XXXX", blank=True, help_text="Auto generated: scientificNameAbbreviation-permanentTag. Ex: BEEX-0000")
     permanent_tag = models.CharField(max_length=255, help_text="Tree Tag Number: XXXX. <b>Important:</b> If permanent tag is modified, the tag in the corresponding Azure picture must also be changed.")
