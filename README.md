@@ -15,7 +15,8 @@
 
 ## Project Overview 
 Django web application for managing tree adoptions and donor contributions on an interactive map hosted through Wix Studio. The frontend allows donors to view a variety of trees within the Alliance for a Sustainable Amazon's property as well as adopt them for one year. The backend allows administrators to view, add, edit, and remove trees and donations from the database. 
-- **Important:** Although this repository only contains the Django app service, the following README file documents the entire project. The final product can be found on the [official Alliance for a Sustainable Amazon website]().
+
+**Important:** Although this repository only contains the Django app service, the following README file documents the entire project. The final product can be found on the [official Alliance for a Sustainable Amazon website](https://www.sustainableamazon.org/reforestation).
 
 ---
 
@@ -27,12 +28,12 @@ Django web application for managing tree adoptions and donor contributions on an
     - Admin dashboard for data management
 - Wix Studio:
     - Obtain basic information about all trees or detailed information about individual trees
-    - Create Stripe payment links
+    - Create Stripe checkout sessions
 
 ### Frontend
 - View tree locations on interactive map
 - Access specific tree data (name, diameter at breast height, height, tag number, image)
-- Adopt trees and view already adopted trees.
+- Adopt trees and view already adopted trees
 
 ---
 
@@ -46,16 +47,16 @@ Django web application for managing tree adoptions and donor contributions on an
 ### Architecture Visualization
 Wix Studio Frontend 
 
+Wix Studio Backend      Stripe Webhooks
+
 Django REST API
 
 PostgreSQL Database
 
-Stripe Webhooks
-
 ---
 
 ## Setup Instructions
-**Important:** These setup explinations pertain to local development and testing. For information on how to configure each part for deployment, see [Deployment](#deployment)
+**Important:** These setup explinations pertain to local development and testing. For information on how to configure each part for deployment, see [Deployment](#deployment).
 
 ### Setup Prerequisites
 - Python 3.14+
@@ -203,16 +204,21 @@ ngrok 8000
 
 ### Frontend Functionality
 #### Map
+- Move the map around and see the surrounding area in satellite view
+- See exact locations of pins on the map
 
+#### Popup
+- View detailed tree data as well as an image of the tree
+- Button to open the adoption checkout session if adoptable, donor name if not
+
+#### Stripe Checkout
+- Pricing information
+- Terms and Conditions
+- Boxes to fill out payment information
 
 ---
 
 ## User Interface
-### Frontend Interface
-- **Interactive Google Map:** 
-- **Tree Popups:**
-- **Stripe Payment Link:**
-
 ### Backend Interface
 - **Admin Panel:**
     - Tables for:
@@ -221,6 +227,14 @@ ngrok 8000
         - Donations
     - Search and filter functionality for each table
     - Ability to add new admin user accounts
+
+### Frontend Interface
+- **Wix Studio:**
+    - Interactive Google Map
+    - Tree popups
+- **Stripe Checkout:**
+    - Checkout session with payment information
+    - Payment result page (redirected to Wix Studio)
 
 ---
 
@@ -266,7 +280,8 @@ ngrok 8000
 ### Backend
 - Django:
     - `trees/`**:** Main app (models, views, admin, templates, static, management commands)
-    - `adopt_a_tree`**:** Project settings
+    - `adopt_a_tree/`**:** Project settings
+    - `staticfiles/`**:** Collection of files from `trees/static/` for production use
 - Wix Studio:
     - `treeApis.jsw`**:** API calls to Django backend
 
@@ -284,11 +299,17 @@ TBD
 ---
 
 ## References
-- [Official Django documentation]()
+- [Official Django documentation](https://docs.djangoproject.com/en/6.0/)
 
-- [Official Wix Studio documentation]()
+- [Official Django tutorial](https://docs.djangoproject.com/en/6.0/intro/tutorial01/)
 
-- [Official Stripe documentation]()
+- [Official Wix Studio documentation](https://support.wix.com/en/wix-studio)
+
+- [Official Stripe documentation](https://docs.stripe.com)
+
+- [Official Google Maps documentation](https://developers.google.com/maps/documentation)
+
+- [Official Azure documentation](https://learn.microsoft.com/en-us/azure/?product=popular)
 
 - [Microsoft documentation on setting up a Django app service](https://learn.microsoft.com/en-us/azure/app-service/tutorial-python-postgresql-app-django?tabs=copilot&pivots=azure-portal)
 
