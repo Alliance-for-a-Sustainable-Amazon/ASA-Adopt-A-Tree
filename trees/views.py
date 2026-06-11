@@ -11,12 +11,15 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, Http404, JsonResponse
 from django.core.paginator import Paginator
 from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta, datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
 from decimal import Decimal
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from azure.storage.blob import BlobServiceClient
 from .serializers import TreeMapSerializer, TreeDetailSerializer
 
 from .models import Donor, Tree, Donation
@@ -29,6 +32,24 @@ MODEL_MAP = {
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 EXPECTED_API_KEY = settings.DJANGO_API_KEY
+AZURE_BLOB_STORAGE = settings.AZURE_BLOB_STORAGE
+AZURE_BLOB_CONTAINER = settings.AZURE_BLOB_CONTAINER
+
+blob_service_client = BlobServiceClient.from_connection_string(
+    settings.AZURE_CONNECTION_STRING
+)
+
+container_client = blob_service_client.get_container_client(
+    AZURE_BLOB_CONTAINER
+)
+
+# Helper function to find if image file exists.
+def blob_exists(blob_name):
+    try:
+        blob_client = container_client.get_blob_client(blob_name)
+        return blob_client.exists()
+    except Exception:
+        return False
 
 # Creates a timestamp / count to see if any changes have occurred in the database. Prevents pulling all pins every 30 seconds
 # when there are no changes.
@@ -53,7 +74,8 @@ def tree_updates(request):
         "tree_count": tree_count
     })
 
-# Creates a view to display all basic tree information for map markers
+# Creates a view to display all basic tree information for map markers. Also checks for expired adoptions
+# and resets said trees to adoptable again before sending out the tree information.
 @api_view(['GET'])
 def tree_map_data(request):
     api_key = request.headers.get("X-API-KEY")
@@ -61,6 +83,27 @@ def tree_map_data(request):
     # Requires API calls to have an api key for added security
     if api_key != EXPECTED_API_KEY:
         return JsonResponse({"error": "Unauthorized"}, status=403)
+    
+    today = timezone.now().date()
+
+    # Gets all unprocessed expired donations
+    expired_donations = Donation.objects.filter(
+        expiration_date__lt=today,
+        expiration_processed=False
+    )
+
+    # Allows trees with expired donations to be adoptable again.
+    for donation in expired_donations:
+        donation.tree_id.adoption_status = "adoptable"
+        donation.tree_id.save(update_fields=["adoption_status"])
+
+        donation.expiration_processed = True
+        donation.expired_tree_id = donation.tree_id.tag_id
+        donation.tree_id = None
+        # Don't need tree to be searchable from tree_id anymore
+        donation.searchable_tree_id = ""
+        donation.save(update_fields=["expiration_processed", "tree_id", "expired_tree_id", "searchable_tree_id"])
+
 
     trees = Tree.objects.select_related("donation").all()
 
@@ -81,7 +124,16 @@ def tree_detail_data(request, id):
 
     serializer = TreeDetailSerializer(tree)
 
-    return Response(serializer.data)
+    data = serializer.data
+
+    blob_name = f"{tree.tag_id}.jpg"
+
+    if blob_exists(blob_name):
+        data["image_url"] = (f"https://{AZURE_BLOB_STORAGE}.blob.core.windows.net/{AZURE_BLOB_CONTAINER}/{blob_name}")
+    else:
+        data["image_url"] = None
+
+    return Response(data)
 
 # Creates the Stripe checkout session for the user, providing necessary metadata for webhook reading.
 @csrf_exempt
@@ -99,6 +151,33 @@ def create_checkout_session(request):
         data = json.loads(request.body)
 
         tree_id = data.get("tree_id")
+        tree_tag_id = data.get("tree_tag_id")
+
+        tree = Tree.objects.get(id=tree_id)
+
+        # Set status on these to 200, even though they are errors in order to bypass Wix generic error message
+        if tree.adoption_status == "adopted":
+            return JsonResponse(
+                {
+                    "error": "adopted"
+                },
+                status=200
+            )
+        
+        # Check both if the timer exists and if the specific time as trees with incomplete adoptions will still have an old
+        # reservation timer
+        if tree.reserve_until:
+            if tree.reserve_until > timezone.now():
+                return JsonResponse(
+                    {
+                        "error": "reserved"
+                    },
+                    status=200
+                )
+        
+        # Filter for the specific tree instead of using the 'tree' instance in order to bypass save() function. 
+        # This prevents 'updated_at' from being updated which would cause pin data to be sent to Wix again
+        Tree.objects.filter(id=tree_id).update(reserve_until=timezone.now() + timedelta(minutes=5))
 
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -131,20 +210,28 @@ def create_checkout_session(request):
                     }
                 }
             ],
+            expires_at=int((timezone.now() + timedelta(minutes=30)).timestamp()),
 
             #TODO: Change these to actual site urls once they are ready
-            success_url="https://example.com/success",
-            cancel_url="https://example.com/cancel",
+            success_url="https://www.sustainableamazon.org/payment-results-41818?result=success",
+            cancel_url="https://www.sustainableamazon.org/payment-result-41818?result=cancelled",
+
+            #TODO: Uncomment this out once terms and service has been configured
+            #consent_collection={
+            #    "terms_of_service": "required"
+            #},
 
             # This data gets passed through to the webhook. Allows webhook to update tree adoption status and donations
             metadata={
-                "tree_id": str(tree_id)
+                "tree_id": str(tree_id),
+                "tree_tag_id": str(tree_tag_id)
             },
 
             # Metadata that shows up on the Stripe portal
             payment_intent_data={
                 "metadata": {
-                    "tree_id": str(tree_id)
+                    "tree_id": str(tree_id),
+                    "tree_tag_id": str(tree_tag_id)
                 }
             }
         )
@@ -289,13 +376,14 @@ def stripe_webhook(request):
                 donation_amount = Decimal(session["amount_total"]) / Decimal("100")
 
                 Donation.objects.create(
-                    donor_id=user,
+                    donor_name=user,
+                    searchable_donor_name=user.name,
                     tree_id=tree,
+                    searchable_tree_id=tree.tag_id,
                     stripe_session_id=stripe_session_id,
                     stripe_payment_intent=session["payment_intent"],
                     amount=donation_amount,
                     currency=session["currency"],
-                    donor_name=customer_name,
                     payment_method=payment_method,
                     # Updates the donor_chosen_name if it is provided. Otherwise nothing is set and the model
                     # defaults it to Anonymous.
@@ -313,6 +401,8 @@ def stripe_webhook(request):
 
                 
                 tree.adoption_status = "adopted"
+                # Reset the reserve timer for future adoptions
+                tree.reserve_until = None
                 tree.save()
                 
                 print("Tree adoption updated")

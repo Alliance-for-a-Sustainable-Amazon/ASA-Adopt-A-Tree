@@ -36,7 +36,8 @@ var/
 *.pot
 *.pyc
 local_settings.py
-media/
+media/*
+!media/.gitkeep
 
 # DB
 *.sqlite3
