@@ -188,7 +188,8 @@ def create_checkout_session(request):
                     "price_data": {
                         "currency": "usd",
                         "product_data": {
-                            "name": "Tree Adoption",
+                            "name": "1-Year Tree Adoption ($50 USD)",
+                            "description": "Valid for one year from purchase date."
                         },
                         "unit_amount": 5000, # '$50': Stripe sets decimal places
                     },
@@ -210,6 +211,15 @@ def create_checkout_session(request):
                     }
                 }
             ],
+
+            custom_text={
+                "submit": {
+                    "message": (
+                        "Your $50 USD adoption is valid for one year from the purchase date."
+                    )
+                }
+            },
+
             expires_at=int((timezone.now() + timedelta(minutes=30)).timestamp()),
 
             #TODO: Change these to actual site urls once they are ready
