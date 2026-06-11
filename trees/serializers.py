@@ -51,4 +51,5 @@ class TreeDetailSerializer(serializers.ModelSerializer):
             'height',
             'adoption_status',
             'donor_name',
+            'species_description'
         ]

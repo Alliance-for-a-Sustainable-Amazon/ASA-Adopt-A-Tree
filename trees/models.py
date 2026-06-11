@@ -47,7 +47,7 @@ class Tree(models.Model):
     lat = models.FloatField(default=0, help_text="Latitude: XX.XXXX / -XX.XXXX")
     lng = models.FloatField(default=0, help_text="Longitude: XX.XXXX / -XX.XXXX")
     adoption_status = models.CharField(max_length=10, choices=AdoptionChoices.choices, default=AdoptionChoices.ADOPTABLE)
-    species_description = models.TextField(blank=True, default="")
+    species_description = models.TextField(blank=True, default="", help_text="Species facts for Wix page. <b>Important:</b> Seperated by semi-colon. Ex: Fact1; Fact2; Fact3;")
     notes = models.TextField(blank=True, default="")
 
     # Overrides the save function in order to auto generate a tag number based on provided information
