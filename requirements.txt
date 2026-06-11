@@ -6,3 +6,4 @@ gunicorn~=25.3.0
 django-cors-headers~=4.9.0
 djangorestframework~=3.17.1
 stripe~=15.1.0
+azure-storage-blob~=12.29.0

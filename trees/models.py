@@ -3,7 +3,7 @@ models.py
 Defines the models of the database. Each model a table with each entry representing a column.
 """
 
-import datetime, uuid
+import uuid
 
 from django.db import models
 from django.utils import timezone
@@ -28,37 +28,63 @@ class Tree(models.Model):
         ADOPTED = 'adopted', 'Adopted'
 
     modified = models.TextField(blank=True, null=True, help_text="'Modified' automatically calculated after entry creation.")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    number = models.IntegerField(default=0, blank=True, help_text="'Number' automatically calculated after entry creation.")
-    permanent_tag = models.CharField(max_length=255, null=True, blank=True)
-    study = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, help_text="Auto generated: Month, Day, Year, Time")
+    updated_at = models.DateTimeField(auto_now=True, help_text = "Auto generated: Month, Day, Year, Time")
+    reserve_until = models.DateTimeField(null=True, blank=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, help_text="Primary Key (UUID) used for relations.")
+    tag_id = models.CharField(max_length=255, default="XXXX-XXXX", blank=True, help_text="Auto generated: scientificNameAbbreviation-permanentTag. Ex: BEEX-0000")
+    permanent_tag = models.CharField(max_length=255, help_text="Tree Tag Number: XXXX. <b>Important:</b> If permanent tag is modified, the tag in the corresponding Azure picture must also be changed.")
+    study = models.CharField(max_length=255, blank=True, null=True)
     family = models.CharField(max_length=255)
     genus = models.CharField(max_length=255)
-    species = models.CharField(max_length=255)
+    species = models.CharField(max_length=255, blank=True, null=True, help_text="<b>Important:</b> If species is modified, the taxonomy tag in the corresponding Azure picture must also be changed.")
+    dbh = models.CharField(max_length=255, blank=True, null=True)
+    height = models.CharField(max_length=255, blank=True, null=True)
     common_name_spanish = models.CharField(max_length=255)
-    common_name_english = models.CharField(max_length=255)
-    dbh = models.CharField(max_length=255, help_text="Diameter at Breast Height")
-    age = models.IntegerField(default=0)
-    location = models.CharField(max_length=255)
+    common_name_english = models.CharField(max_length=255, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True)
     location_description = models.TextField(blank=True)
-    lat = models.FloatField(default=0, help_text="Latitude")
-    lng = models.FloatField(default=0, help_text="Longitude")
+    lat = models.FloatField(default=0, help_text="Latitude: XX.XXXX / -XX.XXXX")
+    lng = models.FloatField(default=0, help_text="Longitude: XX.XXXX / -XX.XXXX")
     adoption_status = models.CharField(max_length=10, choices=AdoptionChoices.choices, default=AdoptionChoices.ADOPTABLE)
-    notes = models.TextField(blank=True, default='')
+    species_description = models.TextField(blank=True, default="", help_text="Species facts for Wix page. <b>Important:</b> Seperated by semi-colon. Ex: Fact1; Fact2; Fact3;")
+    notes = models.TextField(blank=True, default="")
 
-    # Overrides the save function in order to auto generate an incrementing number for searchability.
+    # Overrides the save function in order to auto generate a tag number based on provided information
     def save(self, *args, **kwargs):
-        if not self.number:
-            last_tree = Tree.objects.all().order_by('number').last()
-            if last_tree:
-                self.number = (last_tree.number + 1)
+
+        if self.genus == '.' or not self.genus:
+            genus = 'XX'
+        else:
+            genus = self.genus[:2]
+
+
+        if not self.species:
+            species = 'XX'
+        else:
+            # Prevents casing issues
+            species_upper = self.species.upper()
+
+            # If tree has unknown species, it will be given 'SP.', 'SPP.' (multiple species in one), or '.'
+            if species_upper == 'SP.' or species_upper == 'SPP.' or species_upper =='.':
+                species = 'XX'
             else:
-                self.number = 1
+                species = self.species[:2]
+
+        # Gets the first part of the tag_id
+        sci_name_abbreviated = f"{genus}{species}"
+        sci_name_abbreviated = sci_name_abbreviated.upper()
+
+        if self.permanent_tag:
+            tag_number = self.permanent_tag
+        else:
+            self.permanent_tag = "XXXX"
+        
+        self.tag_id = f"{sci_name_abbreviated}_{tag_number}"
+        
         super().save(*args, **kwargs)
 
-    # Provides Admin display with a green check for 'adopted', or a red x for 'adoptable'.
+    # Provides Admin display with a green check for 'adopted', or a red x for 'adoptable'
     @admin.display(
             description = "Adopted?",
             boolean = True,
@@ -67,14 +93,15 @@ class Tree(models.Model):
         return self.adoption_status == "adopted"
 
     def __str__(self):
-        return f"{self.number}: {self.common_name_english}"
+        return f"{self.tag_id}"
 
 class Donation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     number = models.IntegerField(default=0, help_text="'Number' automatically calculated after entry creation.")
     date = models.DateTimeField(default=timezone.now, help_text="Date is automatically set.")
-    donor_id = models.ForeignKey(Donor, on_delete=models.SET_NULL, null=True, blank=True, related_name="donations")
-    donor_name = models.CharField(max_length=255)
+    donor_name = models.ForeignKey(Donor, on_delete=models.SET_NULL, null=True, blank=True, related_name="donations")
+    # Foreign keys are not searchable so make a hidden field that allows admins to search.
+    searchable_donor_name = models.CharField(max_length=255, default="", blank=True)
     donor_chosen_name = models.CharField(max_length=255, default="Anonymous", help_text="Name that will appear on the adopted tree.")
     stripe_session_id = models.CharField(max_length=255, unique=True, default="")
     stripe_payment_intent = models.CharField(max_length=255, default="")
@@ -82,12 +109,16 @@ class Donation(models.Model):
     currency = models.CharField(max_length=10, default="")
     payment_method = models.CharField(max_length=255)
     expiration_date = models.DateTimeField(blank=True, null=True, help_text="'Expiration Date' is automatically calculated.")
-    tree_id = models.OneToOneField(Tree, on_delete=models.SET_NULL, null=True, blank=True, related_name="donation")
-    notes = models.TextField(blank=True, default='')
+    expiration_processed = models.BooleanField(default=False)
+    tree_id = models.OneToOneField(Tree, on_delete=models.SET_NULL, null=True, blank=True, related_name="donation", help_text="Tag ID of the adopted tree. Automatically set upon adoption.")
+    # Foreign keys are not searchable so make a hidden field that allows admins to search.
+    searchable_tree_id = models.CharField(max_length=255, default="", blank=True)
+    expired_tree_id = models.CharField(max_length=255, default="", blank=True, help_text="Automatically set upon tree expiration.")
+    notes = models.TextField(blank=True, default="")
 
     # Overrides the save function to auto generate listed fields: number, expiration_date
     def save(self, *args, **kwargs):
-        # Auto increments number in order to have easy searchability outside of the UUID id. 
+        # Auto increments number in order to have easy searchability outside of the UUID id
         if not self.number:
             last_donation = Donation.objects.all().order_by('number').last()
             if last_donation:
@@ -95,7 +126,7 @@ class Donation(models.Model):
             else:
                 self.number = 1
 
-        # Automatically adds expiration date to a year after initial donation date.
+        # Automatically adds expiration date to a year after initial donation date
         if not self.expiration_date:
             self.expiration_date = self.date + timedelta(days=365)
 
