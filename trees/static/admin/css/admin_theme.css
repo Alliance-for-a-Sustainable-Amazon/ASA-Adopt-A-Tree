@@ -83,7 +83,7 @@ HEADERS
 BREADCRUMBS
 */
 div.breadcrumbs {
-    background-color: var(--secondary) !important;
+    background-color: var(--primary) !important;
     color: white;
 }
 
@@ -124,7 +124,7 @@ SIDEBAR
 }
 
 #nav-sidebar a:hover {
-    background-color: var(--accent) !important;
+    background-color: var(--primary) !important;
     color: white !important;
 }
 
@@ -207,7 +207,7 @@ input[type="submit"],
 input[type="button"],
 .submit-row input,
 input.default {
-    background-color: var(--secondary) !important;
+    background-color: var(--primary) !important;
     color: white !important;
     border-radius: 6px;
     border: none;
@@ -233,7 +233,7 @@ input[type="submit"]:active,
 }
 
 .object-tools a {
-    background-color: var(--secondary) !important;
+    background-color: var(--primary) !important;
     border-radius: 20px;
     padding: 6px 14px;
     transition: background-color 0.2s ease;
@@ -250,7 +250,7 @@ input[type="submit"]:active,
 FILTER BOX
 */
 #changelist-filter h2 {
-    background-color: var(--link-hover-color) !important;
+    background-color: var(--primary) !important;
     color: white !important;
 }
 
@@ -339,7 +339,7 @@ fieldset,
 }
 
 #changelist-filter a {
-    color: var(--secondary) !important;
+    color: var(--primary) !important;
 }
 
 #changelist-filter li.selected a {
