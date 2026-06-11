@@ -163,11 +163,13 @@ ngrok 8000
 - Enforced with:
     - **API restrictions:** Maps Javascript API, Maps Static API
     - **Website restrictions:** Google Map API can only be called by the provided website urls
+    - **Quotas:** Setting up 'per day' and 'per minute' quotas prevents constant API calls and going over the free limit
 
 ### Stripe Authentication
 - Enforced with:
     - **Secret Keys:** `STRIPE_WEBHOOK_SECRET`, `STRIPE_SECRET_KEY`
     - **Stripe Header:** Stripe webhooks provide a secret header to prevent data from being edited or accessed by outside sources
+    - **Expiration Timer:** 30 minute timeout on Stripe checkouts helps to prevent two people adopting the same tree
 ---
 
 ## Core Functionality
@@ -232,6 +234,7 @@ ngrok 8000
 - **Wix Studio:**
     - Interactive Google Map
     - Tree popups
+    - Adoption reserved popup
 - **Stripe Checkout:**
     - Checkout session with payment information
     - Payment result page (redirected to Wix Studio)
