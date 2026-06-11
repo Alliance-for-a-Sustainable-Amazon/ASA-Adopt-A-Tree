@@ -4,6 +4,8 @@ Registers all models on the admin site.
 """
 
 from django.contrib import admin
+from django.utils import timezone
+from django.utils.safestring import mark_safe
 from .models import Tree, Donor, Donation
 from copy import deepcopy
 
@@ -39,11 +41,22 @@ class TreeAdmin(admin.ModelAdmin):
         js = ('admin/js/admin_expand.js',)
 
     # Allows the primary key (ID) to be displayed without it being editable. 
-    readonly_fields = ("id", "tag_id", "created_at", "updated_at")
+    readonly_fields = ("id", "tag_id", "created_at", "updated_at", "display_modified")
+
+    def display_modified(self, obj):
+        return mark_safe(
+            f"""
+            <textarea readonly
+                style="width:600px;height:100px;">{obj.modified}
+             </textarea>
+        """
+        )
+    
+    display_modified.short_description = "Modification Log (automatically generated)"
 
     fieldsets = [
         ("Identifiers", {"fields": ["id", "tag_id"]}),
-        ("Date Information", {"fields": ["created_at", "updated_at"]}),
+        ("Date Information", {"fields": ["display_modified", "created_at", "updated_at"]}),
         ("Adoption Status", {"fields": ["adoption_status"]}),
         ("Tree Information", {"fields": ["common_name_spanish", "common_name_english", "family", "genus", "species", "dbh", "height"]}),
         ("Location Information", {"fields": ["lat", "lng", "location", "location_description"]}),
@@ -53,6 +66,26 @@ class TreeAdmin(admin.ModelAdmin):
     list_display = ["tag_id", "common_name_spanish", "common_name_english", "display_adoption_status"]
     list_filter = ["adoption_status"]
     search_fields = ["id", "tag_id", "common_name_english", "common_name_spanish"]
+
+    def save_model(self, request, obj, form, change):
+        timestamp = timezone.now().strftime("%Y-%m-%d %H:%M")
+        # Gets the first 6 characters of admin's username
+        user_code = request.user.username[:6].upper()
+
+        if change:
+            changed_fields = ", ".join(form.changed_data)
+            new_entry = (
+                f"{timestamp} {user_code} modified ({changed_fields})"
+            )
+        else:
+            new_entry = f"{timestamp} {user_code} initial data entry"
+
+        if obj.modified:
+            obj.modified = f"{new_entry}; {obj.modified}"
+        else:
+            obj.modified = new_entry
+
+        super().save_model(request, obj, form, change)
 
 @admin.register(Donor)
 class DonorAdmin(admin.ModelAdmin):
