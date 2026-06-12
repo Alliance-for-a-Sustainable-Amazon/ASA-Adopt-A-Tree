@@ -14,9 +14,9 @@
 11. [References](#references)
 
 ## Project Overview 
-Django web application for managing tree adoptions and donor contributions on an interactive map hosted through Wix Studio. The frontend allows donors to view a variety of trees within the Alliance for a Sustainable Amazon's property as well as adopt them for one year. The backend allows administrators to view, add, edit, and remove trees and donations from the database. 
+Django web application for managing tree adoptions and donor contributions on an interactive map hosted through Wix Studio. The frontend allows donors to view a variety of trees within the Alliance for a sustainable Amazon's property as well as adopt them for one year. The backend allows administrators to view, add, edit, and remove trees and donations from the database. 
 
-**Important:** Although this repository only contains the Django app service, the following README file documents the entire project. The final product can be found on the [official Alliance for a Sustainable Amazon website](https://www.sustainableamazon.org/reforestation).
+**Important:** Although this repository only contains the Django app service, the following README file documents the entire project. The final product can be found on the [official Alliance for a sustainable Amazon website](https://www.sustainableamazon.org/reforestation). (This map is not yet publicly accessible and will become available on launch day.)
 
 ---
 
@@ -26,9 +26,10 @@ Django web application for managing tree adoptions and donor contributions on an
     - Track donors, donations, and trees
     - Manage tree adoption status
     - Admin dashboard for data management
+    - Create Stripe checkout sessions
 - Wix Studio:
     - Obtain basic information about all trees or detailed information about individual trees
-    - Create Stripe checkout sessions
+    - Fetch Stripe checkout sessions
 
 ### Frontend
 - View tree locations on interactive map
@@ -39,15 +40,50 @@ Django web application for managing tree adoptions and donor contributions on an
 
 ## System Architecture
 ### Technology Stack
-- **Frontend:** HTML, CSS, JavaScript, Django templates, Google Maps API, Stripe payment links
-- **Backend:** Django 6.0.2, Python 3.14.4, Wix Studio backend
+- **Frontend:** HTML, CSS, JavaScript, Django templates, Google Maps API, Stripe checkout sessions
+- **Backend:** Django 6.0.4, Python 3.14.4, Wix Studio backend (`.jsw`)
 - **Database:** PostgreSQL 
-- **Deployment:** Azure App Service, Azure database hosting, Wix Studio, Stripe
+- **Deployment:** Azure App Service, Azure Flexible Server (database), Azure Blob Storage, Wix Studio, Stripe
+
+### Architecture Visualization
+```mermaid
+flowchart LR
+
+User[User]
+
+WixFrontend[Wix Studio Frontend]
+WixBackend[Wix Studio Backend]
+Django[Django Backend API]
+Stripe[Stripe Checkout]
+Webhook[Stripe Webhook]
+DB[(Database)]
+Azure[Azure Blob Storage]
+Maps[Google Maps API]
+
+User --> WixFrontend
+User --> Stripe
+
+WixFrontend --> WixBackend --> Django
+WixFrontend --> Maps
+
+Django --> DB
+Django --> Stripe
+Django --> Azure
+
+Stripe --> User
+Stripe --> Webhook
+
+Webhook --> Django
+
+Azure --> WixBackend
+
+WixBackend --> WixFrontend
+```
 
 ---
 
 ## Setup Instructions
-**Important:** These setup explinations pertain to local development and testing. All secret key variables and links mentioned in this section should be switched to production links and secrets. For information on how to configure each part for deployment, see [Deployment](#deployment).
+**Important:** These setup instructions pertain to local development and testing. All secret key variables and links mentioned in this section should be swapped out for production variables upon launch and production testing. For information on how to configure each part for deployment, see [Deployment](#deployment).
 
 ### Setup Prerequisites
 - Python 3.14+
@@ -102,7 +138,7 @@ python manage.py runserver
 1. Open Wix Studio site
 2. Enable Velo Dev mode
 3. Duplicate the current page containing the map
-4. Make the duplicated page unindexable and set the set the URL to some random string
+4. Make the duplicated page unindexable and set the URL to some random string
 3. Configure the Backend API URL:
     - Update `BASE_URL` in `treeApis.jsw` to point toward hosting service URL (ngrok, etc)
 4. Publish site
@@ -115,6 +151,7 @@ python manage.py runserver
 ngrok 8000
 ```
 2. Copy the URL that appears in the terminal and update `BASE_URL` in `treeApis.jsw` on Wix Studio
+3. Add the URL to `ALLOWED_HOSTS` in the `.env` file
 ---
 
 ## Database Structure
@@ -336,4 +373,4 @@ ngrok 8000
 
 - ASA Adopt-A-Tree maintainers
 
-- More information pertaining to setup and functionality of the project can be found on the [official final report]()
+- More information pertaining to setup and functionality of the project can be found on the [official final report]() (Currently unavailable)
