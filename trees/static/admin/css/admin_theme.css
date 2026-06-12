@@ -313,6 +313,16 @@ fieldset .flex-container label,
     color: var(--text) !important;
 }
 
+/* Force help text under fields to be black (not gray) */
+.help, 
+p.help, 
+form p.help, 
+div.help, 
+form div.help, 
+div.help li {
+    color: var(--text) !important;
+}
+
 /* Ensure admin content areas stay light */
 #content,
 #content-main,
