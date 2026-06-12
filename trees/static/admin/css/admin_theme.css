@@ -11,13 +11,13 @@ html[data-theme="light"], :root {
     color-scheme: light;
 
     --body-bg: #f6f8f5;
-    --body-fg: #016533;
+    --body-fg: #000000;
 
     --darkened-bg: #eaf6ed;
     --selected-bg: #d8f5e0;
 
     --primary: #016533;
-    --secondary: #81B53E;
+    --secondary: #016533;
     --accent: #52b788;
 
     --hairline-color: #d8e2dc;
@@ -26,16 +26,16 @@ html[data-theme="light"], :root {
     --header-bg: #016533;
     --header-color: #ffffff;
 
-    --breadcrumbs-bg: #81B53E;
+    --breadcrumbs-bg: #016533;
     --breadcrumbs-fg: #ffffff;
 
-    --link-fg: #81B53E;
+    --link-fg: #016533;
     --link-hover-color: #40916c;
 
-    --button-bg: #52b788;
-    --button-hover-bg: #40916c;
-    --default-button-bg: #52b788;
-    --default-button-hover-bg: #40916c;
+    --button-bg: #016533;
+    --button-hover-bg: #ffffff;
+    --default-button-bg: #016533;
+    --default-button-hover-bg: #ffffff;
 
     --close-button-bg: #ba2121;
     --close-button-hover-bg: #a41515;
@@ -44,13 +44,15 @@ html[data-theme="light"], :root {
     --message-warning-bg: #ffe08a;
     --message-error-bg: #f28482;
 
-    --object-tools-bg: #52b788;
-    --object-tools-hover-bg: #40916c;
+    --object-tools-bg: #016533;
+    --object-tools-hover-bg: #ffffff;
 
-    --module-header-bg: #81B53E;
-    --module-header-fg: white;
+    --module-header-bg: #016533;
+    --module-header-fg: #ffffff;
 
     --dark-bg: #f6f8f5;
+
+    --text: black;
 }
 
 /* Removes the dark mode toggle */
@@ -63,7 +65,7 @@ GLOBAL
 */
 body {
     background-color: var(--body-bg);
-    color: var(--body-fg);
+    color: var(--text);
 }
 
 /* 
@@ -131,7 +133,7 @@ SIDEBAR
 /* Active item */
 #nav-sidebar .current-model {
     background-color: var(--selected-bg) !important;
-    color: #081c15 !important;
+    color: var(--primary) !important;
 }
 
 /*
@@ -300,7 +302,15 @@ fieldset,
 .aligned,
 .form-row {
     background-color: white !important;
-    color: var(--primary) !important;
+    color: var(--text) !important;
+}
+
+/* Force the field text to be black (not gray) */
+fieldset .fieldBox label,
+fieldset .flex-container label,
+.aligned label,
+.form-row label {
+    color: var(--text) !important;
 }
 
 /* Ensure admin content areas stay light */
@@ -322,7 +332,7 @@ fieldset,
 #nav-sidebar .current-app,
 #nav-sidebar .model-current {
     background: var(--body-bg) !important;
-    color: var(--primary) !important;
+    color: var(--text) !important;
 }
 
 /* Ensure search/filter areas stay light */
@@ -339,10 +349,10 @@ fieldset,
 }
 
 #changelist-filter a {
-    color: var(--primary) !important;
+    color: var(--text) !important;
 }
 
 #changelist-filter li.selected a {
-    color: var(--primary) !important;
+    color: var(--text) !important;
     font-weight: 600;
 }
