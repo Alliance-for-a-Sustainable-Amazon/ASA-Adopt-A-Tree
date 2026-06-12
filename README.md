@@ -44,19 +44,10 @@ Django web application for managing tree adoptions and donor contributions on an
 - **Database:** PostgreSQL 
 - **Deployment:** Azure App Service, Azure database hosting, Wix Studio, Stripe
 
-### Architecture Visualization
-Wix Studio Frontend 
-
-Wix Studio Backend      Stripe Webhooks
-
-Django REST API
-
-PostgreSQL Database
-
 ---
 
 ## Setup Instructions
-**Important:** These setup explinations pertain to local development and testing. For information on how to configure each part for deployment, see [Deployment](#deployment).
+**Important:** These setup explinations pertain to local development and testing. All secret key variables and links mentioned in this section should be switched to production links and secrets. For information on how to configure each part for deployment, see [Deployment](#deployment).
 
 ### Setup Prerequisites
 - Python 3.14+
@@ -103,7 +94,7 @@ python manage.py runserver
 3. Add the secret key to the `.env` file under `STRIPE_SECRET_KEY`
 4. Open the Developer tab
 5. Create a new webhook:
-    - Set the URL: `your-local-or-production-link/api/stripe-webhook/`
+    - Set the URL: `your-local-link/api/stripe-webhook/`
     - Copy the webhook signing secret
 6. Add the webhook signing secret to the `.env` file under `STRIPE_WEBHOOK_SECRET`
 
@@ -113,7 +104,7 @@ python manage.py runserver
 3. Duplicate the current page containing the map
 4. Make the duplicated page unindexable and set the set the URL to some random string
 3. Configure the Backend API URL:
-    - Update `ADD_VAR_NAME_HERE` in `treeApis.jsw` to point toward hosting service URL (ngrok, etc)
+    - Update `BASE_URL` in `treeApis.jsw` to point toward hosting service URL (ngrok, etc)
 4. Publish site
 
 ### ngrok Setup (optional):
@@ -123,7 +114,7 @@ python manage.py runserver
 ```bash
 ngrok 8000
 ```
-2. Copy the URL that appears in the terminal and update `ADD_VAR_NAME_HERE` in `treeApis.jsw` on Wix Studio
+2. Copy the URL that appears in the terminal and update `BASE_URL` in `treeApis.jsw` on Wix Studio
 ---
 
 ## Database Structure
@@ -169,7 +160,7 @@ ngrok 8000
 - Enforced with:
     - **Secret Keys:** `STRIPE_WEBHOOK_SECRET`, `STRIPE_SECRET_KEY`
     - **Stripe Header:** Stripe webhooks provide a secret header to prevent data from being edited or accessed by outside sources
-    - **Expiration Timer:** 30 minute timeout on Stripe checkouts helps to prevent two people adopting the same tree
+    - **Expiration Timer:** 30 minute timeout on Stripe checkouts helps to prevent two people attempting to adopt the same tree
 ---
 
 ## Core Functionality
@@ -297,7 +288,34 @@ ngrok 8000
 --- 
 
 ## Coding Standards
-TBD
+### General
+- Code prioritizes readability and organization over being overly concise
+- Descriptive variable, function, class names, and UI used
+- Complex logic documented with comments
+- Sensitive information such as API keys, connection strings, and secret keys stored in environment variables and secret managers
+
+### Python / Django
+- Code generally follows PEP 8 conventions
+- Business logic resides inside Django backend, not Wix Studio frontend
+- API validation required for all data requests from the database
+- Stripe webhook signatures must be verified before processing information into the database
+
+### JavaScript / Wix Studio
+- Asynchronous operations use `async` / `await` when necessary
+- Frontend code focuses on user interaction, while backend code focuses on API requests
+- Error handling implemented into API requests and user interface to prevent user from being in the dark
+
+### HTML / CSS
+- HTML uses meaningful identifiers
+- CSS generally organized by component / feature when possible
+- Reusable styles used when possible
+
+### Version Control
+- Commit messages and descriptions generally provide a clear understanding of what has changed
+- Debug and testing code removed before deployment, unless there are plans to use it in the future
+- All changes tested before being merged
+- Branches used to seperate changes and logic
+    - Branches thoroughly tested before merging into main to prevent as many bugs as possible
 
 ---
 
