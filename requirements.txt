@@ -7,3 +7,6 @@ django-cors-headers~=4.9.0
 djangorestframework~=3.17.1
 stripe~=15.1.0
 azure-storage-blob~=12.29.0
+reportlab~=4.5.1
+pillow~=12.2.0
+requests~=2.34.2

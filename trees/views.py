@@ -6,9 +6,9 @@ As we are using this django project solely as an admin site currently, there are
 The current view, 'generic_list_view', works but is not set up in the urls.py file.
 """
 
-import json, stripe, traceback, uuid
+import json, stripe, traceback, uuid, tempfile, logging
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import HttpResponse, Http404, JsonResponse, FileResponse
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.utils import timezone
@@ -21,6 +21,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from azure.storage.blob import BlobServiceClient
 from .serializers import TreeMapSerializer, TreeDetailSerializer
+from .services.certificate_generator import generate_certificate
+from .services.email_generator import send_certificate_email
 
 from .models import Donor, Tree, Donation
 
@@ -30,10 +32,12 @@ MODEL_MAP = {
     'donations': Donation,
 }
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
 EXPECTED_API_KEY = settings.DJANGO_API_KEY
 AZURE_BLOB_STORAGE = settings.AZURE_BLOB_STORAGE
 AZURE_BLOB_CONTAINER = settings.AZURE_BLOB_CONTAINER
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+logger = logging.getLogger(__name__)
 
 blob_service_client = BlobServiceClient.from_connection_string(
     settings.AZURE_CONNECTION_STRING
@@ -385,7 +389,7 @@ def stripe_webhook(request):
 
                 donation_amount = Decimal(session["amount_total"]) / Decimal("100")
 
-                Donation.objects.create(
+                donation = Donation.objects.create(
                     donor_name=user,
                     searchable_donor_name=user.name,
                     tree_id=tree,
@@ -416,6 +420,49 @@ def stripe_webhook(request):
                 tree.save()
                 
                 print("Tree adoption updated")
+
+                image_url = None
+                blob_name = f"{tree.tag_id}.jpg"
+
+                # Only send the image url if it exists
+                if blob_exists(blob_name):
+                    image_url = (f"https://{AZURE_BLOB_STORAGE}.blob.core.windows.net/{AZURE_BLOB_CONTAINER}/{blob_name}")
+
+                temp_file = tempfile.NamedTemporaryFile(
+                    suffix=".pdf",
+                    delete=False
+                )
+
+                try:
+                    # Generate the user's certificate AFTER database changes to ensure PDF and email aren't sent
+                    # if there is some issue and database queries are voided
+                    pdf_bytes = generate_certificate(
+                        donor_name=customer_name,
+                        tree_name=tree.common_name_spanish,
+                        tree_species=f"{tree.genus} {tree.species}",
+                        tree_perm_id=tree.permanent_tag,
+                        tree_height=tree.height,
+                        tree_dbh=tree.dbh,
+                        adoption_date=donation.date,
+                        expiration_date=donation.expiration_date,
+                        tree_image_url=image_url,
+                        output_path=temp_file.name
+                    )
+
+                    email_sent = send_certificate_email(
+                        recipient_email=customer_email,
+                        donor_name=customer_name,
+                        pdf_bytes=pdf_bytes
+                    )
+
+                    # 'certificate_sent' defaults to False. Only call the save function if that has changed
+                    if email_sent:
+                        donation.certificate_sent = True
+                        donation.save(update_fields=["certificate_sent"])
+                # If an exception is hit, log it but don't return anything to allow the database modifications to go through still
+                except Exception:
+                    logger.exception(f"Certificate generation failed for donation {donation.id}")
+
                 return HttpResponse(status=200)
         
         except Exception as e:
@@ -425,6 +472,39 @@ def stripe_webhook(request):
 
 
     return HttpResponse(status=200)
+
+# TODO: Remove this one certificate generation is complete
+# Creates a preview page of the certificate for testing
+def preview_certificate(request):
+    temp_file = tempfile.NamedTemporaryFile(
+        suffix=".pdf",
+        delete=False
+    )
+
+    image_url = None
+    blob_name = "BEEX_0020.jpg"
+
+    # Only send the image url if it exists
+    if blob_exists(blob_name):
+        image_url = (f"https://{AZURE_BLOB_STORAGE}.blob.core.windows.net/{AZURE_BLOB_CONTAINER}/{blob_name}")
+
+    generate_certificate(
+        donor_name="John Smith",
+        tree_name="Castaña",
+        tree_species="Testing Species",
+        tree_perm_id="XXXX",
+        tree_height="100cm",
+        tree_dbh="30cm",
+        adoption_date="06/12/2026",
+        expiration_date="06/12/2027",
+        tree_image_url=image_url,
+        output_path=temp_file.name
+    )
+
+    return FileResponse(
+        open(temp_file.name, "rb"),
+        content_type="application/pdf",
+    )
 
 
 # TODO: Currently this table is not being used on the site. Either set it up, or remove it for final production.

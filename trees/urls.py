@@ -9,7 +9,8 @@ from .views import (
     tree_detail_data,
     create_checkout_session,
     stripe_webhook,
-    tree_updates
+    tree_updates,
+    preview_certificate
 )
 
 app_name = "trees"
@@ -21,5 +22,10 @@ urlpatterns = [
     path('tree-detail/<uuid:id>/', tree_detail_data),
     path('create-checkout-session/', create_checkout_session),
     path('stripe-webhook/', stripe_webhook),
-    path('tree-updates/', tree_updates)
+    path('tree-updates/', tree_updates),
+    path(
+        "certificate_preview/",
+        preview_certificate,
+        name="certificate-preview"
+    )
 ]

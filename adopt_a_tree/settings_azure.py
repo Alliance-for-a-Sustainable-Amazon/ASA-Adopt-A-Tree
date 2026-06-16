@@ -16,15 +16,30 @@ env = environ.Env(
 environ.Env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env('DJANGO_SECRET_KEY')
+DJANGO_API_KEY = env('DJANGO_API_KEY')
 
 STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
 STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET')
-DJANGO_API_KEY = env('DJANGO_API_KEY')
 
 # Production storage container for tree images
 AZURE_BLOB_STORAGE = env('AZURE_BLOB_STORAGE', default=None)
 AZURE_BLOB_CONTAINER = env('AZURE_BLOB_CONTAINER', default=None)
 AZURE_CONNECTION_STRING = env('AZURE_CONNECTION_STRING', default=None)
+
+# Email settings in order to allow certificates to be sent using the Google workspace
+# TODO: Uncomment these once access to the Google workspace has been acquired
+"""
+EMAIL_BACKEND = "django.core.mail.backends.stmp.EmailBackend"
+EMAIL_HOST = "stmp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+"""
+
+#TODO: Remove this line once the other have been uncommented. This prints the email to terminal for testing
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
