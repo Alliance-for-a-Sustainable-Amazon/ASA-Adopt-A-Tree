@@ -14,6 +14,8 @@ from django.contrib.staticfiles import finders
 
 template_path = finders.find("certificates/ASA_certificate_template.png")
 
+testing_image_path = finders.find("certificates/BEEX-0020.png")
+
 PAGE_WIDTH, PAGE_HEIGHT = landscape(A4)
 
 def generate_certificate(
@@ -62,9 +64,9 @@ def generate_certificate(
 
     # Donor name is primary focus so keep it bold and larger than the rest
     canv.setFont("Helvetica-Bold", 30)
-    canv.drawCentredString(
-        306,
-        405,
+    canv.drawString(
+        70,
+        377,
         donor_name
     )
 
@@ -72,53 +74,53 @@ def generate_certificate(
     canv.setFont("Helvetica", 20)
     # Tree ID
     canv.drawCentredString(
-        306,
-        390,
-        tree_perm_id
+        665,
+        182,
+        f"Tree tag number: {tree_perm_id}"
     )
 
     # Tree name
-    canv.drawCentredString(
-        306,
-        370,
+    canv.drawString(
+        170,
+        330,
         tree_name
     )
 
     # Tree species
-    canv.drawCentredString(
-        306,
-        350,
+    canv.drawString(
+        148,
+        300,
         tree_species
-    )
-
-    # Tree height
-    canv.drawCentredString(
-        306,
-        330,
-        tree_height
     )
 
     # Tree DBH
     canv.drawString(
-        306,
-        310,
+        316,
+        270,
         tree_dbh
+    )
+
+    # Tree height
+    canv.drawString(
+        133,
+        239,
+        tree_height
     )
 
     # Tree adoption period
     canv.drawString(
-        306,
-        290,
+        133,
+        208,
         f"{adoption_date} - {expiration_date}"
     )
 
     # Tree image
     draw_tree_image(
         canv,
-        100, # x-coord
-        200, # y-coord
-        200, #width
-        300, #height
+        554, # x-coord
+        207, # y-coord
+        225, #width
+        338, #height
         image_url=tree_image_url
     )
 
@@ -141,7 +143,7 @@ def draw_tree_image(
     width,
     height,
     image_url=None,
-    placeholder_path=template_path
+    placeholder_path=testing_image_path #TODO: Change this out for production
 ):
     """
     Draw a given tree image within a provided area of the certificate. 
@@ -167,14 +169,19 @@ def draw_tree_image(
 
         rounded_image = round_image_corners(
             response.content,
-            radius=40
+            radius=45
         )
 
         image_reader = ImageReader(rounded_image)
     except Exception as e:
         if placeholder_path:
             try:
-                image_reader = ImageReader(placeholder_path)
+                rounded_placeholder = round_image_corners(
+                    placeholder_path,
+                    radius=90
+                )
+
+                image_reader = ImageReader(rounded_placeholder)
             except Exception:
                 image_reader = None
 

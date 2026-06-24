@@ -63,7 +63,7 @@ class TreeAdmin(admin.ModelAdmin):
         ("Study Information", {"fields": ["study", "permanent_tag"]}),
         ("Notes", {"fields": ["notes"]}),
     ]
-    list_display = ["tag_id", "common_name_spanish", "common_name_english", "display_adoption_status"]
+    list_display = ["tag_id", "common_name_spanish", "dbh", "height", "display_adoption_status"]
     list_filter = ["adoption_status"]
     search_fields = ["id", "tag_id", "common_name_english", "common_name_spanish"]
 

@@ -230,7 +230,8 @@ def create_checkout_session(request):
             success_url="https://www.sustainableamazon.org/payment-results-41818?result=success",
             cancel_url="https://www.sustainableamazon.org/payment-result-41818?result=cancelled",
 
-            #TODO: Uncomment this out once terms and service has been configured
+            #TODO: Uncomment this out once terms and service has been configured. If no consent collection
+            # is configured on the organization Stripe page, remove it instead.
             #consent_collection={
             #    "terms_of_service": "required"
             #},
@@ -485,12 +486,12 @@ def preview_certificate(request):
     blob_name = "BEEX_0020.jpg"
 
     # Only send the image url if it exists
-    if blob_exists(blob_name):
-        image_url = (f"https://{AZURE_BLOB_STORAGE}.blob.core.windows.net/{AZURE_BLOB_CONTAINER}/{blob_name}")
+    #if blob_exists(blob_name):
+    #    image_url = (f"https://{AZURE_BLOB_STORAGE}.blob.core.windows.net/{AZURE_BLOB_CONTAINER}/{blob_name}")
 
-    generate_certificate(
+    pdf_bytes = generate_certificate(
         donor_name="John Smith",
-        tree_name="Castaña",
+        tree_name="Castaña (Brazil Nut)",
         tree_species="Testing Species",
         tree_perm_id="XXXX",
         tree_height="100cm",
@@ -498,14 +499,14 @@ def preview_certificate(request):
         adoption_date="06/12/2026",
         expiration_date="06/12/2027",
         tree_image_url=image_url,
-        output_path=temp_file.name
     )
 
+    temp_file.write(pdf_bytes)
+    
     return FileResponse(
         open(temp_file.name, "rb"),
-        content_type="application/pdf",
+        "application/pdf"
     )
-
 
 # TODO: Currently this table is not being used on the site. Either set it up, or remove it for final production.
 # Generic table view for all models. Locked behind admin access due to sensitive information in some tables.

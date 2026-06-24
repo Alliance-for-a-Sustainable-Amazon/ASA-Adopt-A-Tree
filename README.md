@@ -1,4 +1,4 @@
-# ASA Adopt A Tree 
+# ASA Adopt-a-Tree
 
 ## Table of Contents
 1. [Project Overview](#project-overview)
@@ -232,6 +232,48 @@ ngrok 8000
     - Tree Adopted
     - Notes
 
+#### API endpoints
+- Variety of endpoints that return necessary information
+- All APIs require an API key
+- `tree_updates`**:**
+    - `last_updated`: Timestamp of latest tree update
+    - `tree_count`: Number of tree records
+- `tree_map_data`**:**
+    - `id`: Tree's ID
+    - `tag_id`: Tree's tag ID
+    - `local_name`: Tree's local name (Spanish name)
+    - `lat`: Tree's latitude
+    - `lng`: Tree's longitude
+    - `adoption_status`: Tree's adoption status
+- `tree_detail_data`**:**
+    - `id`: Tree's ID
+    - `permanent_tag`: Tree's unique tag
+    - `local_name`: Tree's local name (Spanish name)
+    - `english_name`: Tree's name in English (if it exists)
+    - `genus`: Tree's genus
+    - `species`: Tree's species (if known)
+    - `lat`: Tree's latitude
+    - `lng`: Tree's longitude
+    - `dbh`: Tree's diameter at breast height
+    - `height`: Tree's height
+    - `adoption_status`: Tree's adoption status
+    - `donor_name`: Name of the donor who adopted the tree
+    - `species_description`: List of species facts 
+- `create_checkout_session`**:**
+    - `url`: Stripe checkout session URL
+
+#### Stripe webhook
+- Automatically adds donation and donor (if applicable) records to database
+
+#### Certificate Generation
+- Automatically generated certificate containing:
+    - Tree Information
+    - Tree Image
+    - Adoption Period
+    - Donor Name
+    - Website URL
+- Email containing certificate sent to donor
+
 ### Frontend Functionality
 #### Map
 - Move the map around and see the surrounding area in satellite view
@@ -371,6 +413,6 @@ ngrok 8000
 
 - [Microsoft documentation on setting up a Django app service](https://learn.microsoft.com/en-us/azure/app-service/tutorial-python-postgresql-app-django?tabs=copilot&pivots=azure-portal)
 
-- ASA Adopt-A-Tree maintainers
+- ASA Adopt-a-Tree maintainers
 
 - More information pertaining to setup and functionality of the project can be found on the [official final report]() (Currently unavailable)
