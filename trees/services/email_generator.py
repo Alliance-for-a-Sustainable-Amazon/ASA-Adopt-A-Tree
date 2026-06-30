@@ -6,6 +6,7 @@ generated certificate from their adoption
 """
 
 import logging
+from django.conf import settings
 from django.core.mail import EmailMessage
 
 logger = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ def send_certificate_email(
                 f"Thank you your contribution in adopting one of our trees. "
                 f"Your certificate of adoption is attached."
             ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
             to=[recipient_email]
         )
 
@@ -47,5 +49,5 @@ def send_certificate_email(
         logger.exception(
             f"Failed to send certificate email to {recipient_email}"
         )
-        
+
         return False

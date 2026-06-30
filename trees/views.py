@@ -447,7 +447,6 @@ def stripe_webhook(request):
                         adoption_date=donation.date,
                         expiration_date=donation.expiration_date,
                         tree_image_url=image_url,
-                        output_path=temp_file.name
                     )
 
                     email_sent = send_certificate_email(
