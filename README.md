@@ -14,9 +14,9 @@
 11. [References](#references)
 
 ## Project Overview 
-Django web application for managing tree adoptions and donor contributions on an interactive map hosted through Wix Studio. The frontend allows donors to view a variety of trees within the Alliance for a sustainable Amazon's property as well as adopt them for one year. The backend allows administrators to view, add, edit, and remove trees and donations from the database. 
+Django web application for managing tree adoptions and donor contributions on an interactive map hosted through Wix Studio. The frontend allows donors to view a variety of trees within the Alliance for a Sustainable Amazon's property as well as adopt them for one year. The backend allows administrators to view, add, edit, and remove trees and donations from the database. 
 
-**Important:** Although this repository only contains the Django app service, the following README file documents the entire project. The final product can be found on the [official Alliance for a sustainable Amazon website](https://www.sustainableamazon.org/reforestation). (This map is not yet publicly accessible and will become available on launch day.)
+**Important:** Although this repository only contains the Django app service, the following README file documents the entire project. The final product can be found on the [official Alliance for a Sustainable Amazon website](https://www.sustainableamazon.org/reforestation). (This map is not yet publicly accessible and will become available on launch day.)
 
 ---
 
@@ -373,4 +373,4 @@ ngrok 8000
 
 - ASA Adopt-A-Tree maintainers
 
-- More information pertaining to setup and functionality of the project can be found on the [official final report]() (Currently unavailable)
+- More information pertaining to setup and functionality of the project can be found on the [official final report](https://docs.google.com/document/d/121j4fCAvNTCS5Rwxoz9keYPcmJy1PyD8iEI2PUCG3IA/edit?usp=sharing)
