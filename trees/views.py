@@ -429,10 +429,10 @@ def stripe_webhook(request):
                 if blob_exists(blob_name):
                     image_url = (f"https://{AZURE_BLOB_STORAGE}.blob.core.windows.net/{AZURE_BLOB_CONTAINER}/{blob_name}")
 
-                temp_file = tempfile.NamedTemporaryFile(
-                    suffix=".pdf",
-                    delete=False
-                )
+
+                # Make dates human readable 
+                format_adoption_date = donation.date.strftime("%d/%m/%Y")
+                format_expiration_date = donation.expiration_date.strftime("%d/%m/%Y")
 
                 try:
                     # Generate the user's certificate AFTER database changes to ensure PDF and email aren't sent
@@ -444,8 +444,8 @@ def stripe_webhook(request):
                         tree_perm_id=tree.permanent_tag,
                         tree_height=tree.height,
                         tree_dbh=tree.dbh,
-                        adoption_date=donation.date,
-                        expiration_date=donation.expiration_date,
+                        adoption_date=format_adoption_date,
+                        expiration_date=format_expiration_date,
                         tree_image_url=image_url,
                     )
 

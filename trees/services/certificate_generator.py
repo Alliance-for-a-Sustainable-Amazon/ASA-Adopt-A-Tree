@@ -4,7 +4,7 @@ certificate_generator.py
 This file takes the certificate template and generates a customized certificate for each tree adopted.
 """
 
-import requests
+import requests, os
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
@@ -71,56 +71,59 @@ def generate_certificate(
     )
 
     # Remove bold and make text smaller for less significant data 
-    canv.setFont("Helvetica", 20)
+    canv.setFont("Helvetica", 14)
     # Tree ID
     canv.drawCentredString(
-        665,
-        182,
+        687,
+        190,
         f"Tree tag number: {tree_perm_id}"
     )
 
+    canv.setFont("Helvetica", 20)
     # Tree name
     canv.drawString(
-        170,
-        330,
+        245,
+        340,
         tree_name
     )
 
     # Tree species
     canv.drawString(
-        148,
-        300,
+        143,
+        309,
         tree_species
     )
 
     # Tree DBH
+    confirmed_tree_dbh = dot_for_null_check(tree_dbh)
     canv.drawString(
-        316,
-        270,
-        tree_dbh
+        293,
+        279,
+        confirmed_tree_dbh
     )
 
     # Tree height
+    confirmed_tree_height = dot_for_null_check(tree_height)
     canv.drawString(
-        133,
-        239,
-        tree_height
+        129,
+        248,
+        confirmed_tree_height
     )
 
     # Tree adoption period
     canv.drawString(
-        133,
-        208,
+        129,
+        218,
         f"{adoption_date} - {expiration_date}"
     )
 
     # Tree image
     draw_tree_image(
         canv,
-        554, # x-coord
-        207, # y-coord
+        574, # x-coord
+        150, # y-coord
         225, #width
-        338, #height
+        450, #height
         image_url=tree_image_url
     )
 
@@ -163,28 +166,53 @@ def draw_tree_image(
     """
     image_reader = None
 
+    # TODO: Remove this 
+    image_url = testing_image_path
+
     try:
-        response = requests.get(image_url, timeout=10)
-        response.raise_for_status()
+        # Checks whether file is from thee web or local. Used for local development.
+        if image_url.startswith(("http://", "https://")):
+            response = requests.get(image_url, timeout=10)
+            response.raise_for_status()
+            image_data = response.content
+        elif os.path.isfile(image_url):
+            with open(image_url, "rb") as f:
+                image_data = f.read()
+        else:
+            raise ValueError("image_url must be a valid URL or local file path")
 
         rounded_image = round_image_corners(
-            response.content,
-            radius=45
+            image_data,
+            radius=100
         )
 
         image_reader = ImageReader(rounded_image)
     except Exception as e:
+        print("Tree image error: ", e)
+
+        # Checks whether file is from thee web or local. Used to load 'no image' local file.
+        if placeholder_path.startswith(("http://", "https://")):
+            response = requests.get(placeholder_path, timeout=10)
+            response.raise_for_status()
+            image_data = response.content
+        elif os.path.isfile(placeholder_path):
+            with open(placeholder_path, "rb") as f:
+                image_data = f.read()
+        else:
+            raise ValueError("image_url must be a valid URL or local file path")
+
         if placeholder_path:
             try:
                 rounded_placeholder = round_image_corners(
                     placeholder_path,
-                    radius=90
+                    radius=45
                 )
 
                 image_reader = ImageReader(rounded_placeholder)
             except Exception:
                 image_reader = None
 
+    # If local placeholder fails, draw the "No Image" text instead. This is mostly a sanity check and should not occur.
     if image_reader is None:
         canvas.rect(
             x,
@@ -225,7 +253,7 @@ def draw_tree_image(
         mask='auto'
     )
 
-def round_image_corners(image_data, radius=25):
+def round_image_corners(image_data, radius):
     """
     Apply rounded corners to a given image while preserving transparency.
 
@@ -253,12 +281,60 @@ def round_image_corners(image_data, radius=25):
     # Apply the mask to the image's alpha channel
     image.putalpha(mask)
 
+    border_size = 10 # Increase for a thicker frame
+
+    # Create a larger transparent canvas
+    framed = Image.new(
+        "RGBA",
+        (
+            image.width + border_size * 2,
+            image.height + border_size * 2
+        ),
+        (0, 0, 0, 0)
+    )
+
+    draw = ImageDraw.Draw(framed)
+
+    # Prevents white pixels being seen around corners
+    inset = 2
+
+    draw.rounded_rectangle(
+        (
+            inset,
+            inset,
+            framed.width - inset - 1,
+            framed.height - inset - 1
+        ),
+        radius=radius + border_size,
+        outline=(39, 93, 54, 255),
+        width=border_size
+    )
+
+    # Paste the rounded image into the center
+    framed.paste(
+        image,
+        (border_size, border_size),
+        image
+    )
+
     output = BytesIO()
 
     # Save as PNG so transparency is reserved
-    image.save(output, format = "PNG")
-    image.close()
+    framed.save(output, format="PNG", optimize=False)
 
     output.seek(0)
 
     return output
+
+def dot_for_null_check(param):
+    """
+        Helper function that formats unknown fields that are deonatated with a '.' to say 'Unknown' for a 
+        better user experience.
+
+        Parameters:
+            param: String passed in from database
+    """
+    if param == ".":
+        param = "Unknown"
+
+    return param
