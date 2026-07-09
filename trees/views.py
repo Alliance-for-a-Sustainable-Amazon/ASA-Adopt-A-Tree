@@ -6,9 +6,9 @@ As we are using this django project solely as an admin site currently, there are
 The current view, 'generic_list_view', works but is not set up in the urls.py file.
 """
 
-import json, stripe, traceback, uuid
+import json, stripe, traceback, uuid, tempfile, logging
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import HttpResponse, Http404, JsonResponse, FileResponse
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.utils import timezone
@@ -21,6 +21,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from azure.storage.blob import BlobServiceClient
 from .serializers import TreeMapSerializer, TreeDetailSerializer
+from .services.certificate_generator import generate_certificate
+from .services.email_generator import send_certificate_email
 
 from .models import Donor, Tree, Donation
 
@@ -30,10 +32,12 @@ MODEL_MAP = {
     'donations': Donation,
 }
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
 EXPECTED_API_KEY = settings.DJANGO_API_KEY
 AZURE_BLOB_STORAGE = settings.AZURE_BLOB_STORAGE
 AZURE_BLOB_CONTAINER = settings.AZURE_BLOB_CONTAINER
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+logger = logging.getLogger(__name__)
 
 blob_service_client = BlobServiceClient.from_connection_string(
     settings.AZURE_CONNECTION_STRING
@@ -188,7 +192,8 @@ def create_checkout_session(request):
                     "price_data": {
                         "currency": "usd",
                         "product_data": {
-                            "name": "Tree Adoption",
+                            "name": "1-Year Tree Adoption ($50 USD)",
+                            "description": "Valid for one year from purchase date."
                         },
                         "unit_amount": 5000, # '$50': Stripe sets decimal places
                     },
@@ -210,13 +215,23 @@ def create_checkout_session(request):
                     }
                 }
             ],
+
+            custom_text={
+                "submit": {
+                    "message": (
+                        "Your $50 USD adoption is valid for one year from the purchase date."
+                    )
+                }
+            },
+
             expires_at=int((timezone.now() + timedelta(minutes=30)).timestamp()),
 
             #TODO: Change these to actual site urls once they are ready
             success_url="https://www.sustainableamazon.org/payment-results-41818?result=success",
             cancel_url="https://www.sustainableamazon.org/payment-result-41818?result=cancelled",
 
-            #TODO: Uncomment this out once terms and service has been configured
+            #TODO: Uncomment this out once terms and service has been configured. If no consent collection
+            # is configured on the organization Stripe page, remove it instead.
             #consent_collection={
             #    "terms_of_service": "required"
             #},
@@ -375,7 +390,7 @@ def stripe_webhook(request):
 
                 donation_amount = Decimal(session["amount_total"]) / Decimal("100")
 
-                Donation.objects.create(
+                donation = Donation.objects.create(
                     donor_name=user,
                     searchable_donor_name=user.name,
                     tree_id=tree,
@@ -406,6 +421,52 @@ def stripe_webhook(request):
                 tree.save()
                 
                 print("Tree adoption updated")
+
+                image_url = None
+                blob_name = f"{tree.tag_id}.jpg"
+
+                # Only send the image url if it exists
+                if blob_exists(blob_name):
+                    image_url = (f"https://{AZURE_BLOB_STORAGE}.blob.core.windows.net/{AZURE_BLOB_CONTAINER}/{blob_name}")
+
+
+                # Make dates human readable 
+                format_adoption_date = donation.date.strftime("%d/%m/%Y")
+                format_expiration_date = donation.expiration_date.strftime("%d/%m/%Y")
+
+                # TODO: Uncomment this code out for final product. Leaving it commented out for now in order to 
+                # prevent sending too many emails while testing.
+                """
+                try:
+                    # Generate the user's certificate AFTER database changes to ensure PDF and email aren't sent
+                    # if there is some issue and database queries are voided
+                    pdf_bytes = generate_certificate(
+                        donor_name=customer_name,
+                        tree_name=tree.common_name_spanish,
+                        tree_species=f"{tree.genus} {tree.species}",
+                        tree_perm_id=tree.permanent_tag,
+                        tree_height=tree.height,
+                        tree_dbh=tree.dbh,
+                        adoption_date=format_adoption_date,
+                        expiration_date=format_expiration_date,
+                        tree_image_url=image_url,
+                    )
+
+                    email_sent = send_certificate_email(
+                        recipient_email=customer_email,
+                        donor_name=customer_name,
+                        pdf_bytes=pdf_bytes
+                    )
+
+                    # 'certificate_sent' defaults to False. Only call the save function if that has changed
+                    if email_sent:
+                        donation.certificate_sent = True
+                        donation.save(update_fields=["certificate_sent"])
+                # If an exception is hit, log it but don't return anything to allow the database modifications to go through still
+                except Exception:
+                    logger.exception(f"Certificate generation failed for donation {donation.id}")
+                """
+
                 return HttpResponse(status=200)
         
         except Exception as e:
@@ -416,29 +477,36 @@ def stripe_webhook(request):
 
     return HttpResponse(status=200)
 
+# Creates a preview page of the certificate for testing
+# NOTE: This is used solely for local testing
+def preview_certificate(request):
+    temp_file = tempfile.NamedTemporaryFile(
+        suffix=".pdf",
+        delete=False
+    )
 
-# TODO: Currently this table is not being used on the site. Either set it up, or remove it for final production.
-# Generic table view for all models. Locked behind admin access due to sensitive information in some tables.
-@staff_member_required
-def generic_list_view(request, model_name):
-    model_class = MODEL_MAP.get(model_name.lower())
-    if not model_class:
-        raise Http404("No table found.")
+    image_url = None
+    blob_name = "BEEX_0020.jpg"
 
-    objects = model_class.objects.all()
+    # Only send the image url if it exists
+    #if blob_exists(blob_name):
+    #    image_url = (f"https://{AZURE_BLOB_STORAGE}.blob.core.windows.net/{AZURE_BLOB_CONTAINER}/{blob_name}")
 
-    paginator = Paginator(objects, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    pdf_bytes = generate_certificate(
+        donor_name="John Smith",
+        tree_name="Castaña (Brazil Nut)",
+        tree_species="Testing Species",
+        tree_perm_id="XXXX",
+        tree_height="100cm",
+        tree_dbh="30cm",
+        adoption_date="06/12/2026",
+        expiration_date="06/12/2027",
+        tree_image_url=image_url,
+    )
 
-    headers = [field.verbose_name.capitalize() for field in model_class._meta.fields]
-    field_names = [field.name for field in model_class._meta.fields]
-
-    context = {
-        'objects': page_obj,
-        'headers': headers,
-        'field_names': field_names,
-        'title': model_class._meta.verbose_name_plural.capitalize(),
-    }
-
-    return render(request, 'trees/generic_table.html', context)
+    temp_file.write(pdf_bytes)
+    
+    return FileResponse(
+        open(temp_file.name, "rb"),
+        "application/pdf"
+    )

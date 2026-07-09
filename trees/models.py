@@ -114,6 +114,7 @@ class Donation(models.Model):
     # Foreign keys are not searchable so make a hidden field that allows admins to search.
     searchable_tree_id = models.CharField(max_length=255, default="", blank=True)
     expired_tree_id = models.CharField(max_length=255, default="", blank=True, help_text="Automatically set upon tree expiration.")
+    certificate_sent = models.BooleanField(default=False)
     notes = models.TextField(blank=True, default="")
 
     # Overrides the save function to auto generate listed fields: number, expiration_date

@@ -3,6 +3,10 @@ settings.py
 
 Django settings for adopt_a_tree project.
 This file contains all local settings for development. 
+
+NOTE: This file is extremely out of date. Plans to remove it or swap 
+settings_azure.py into this file are being made. The default settings module is set to
+settings_azure.py and any modifications should currently be made there instead of this file.
 """
 
 from pathlib import Path
