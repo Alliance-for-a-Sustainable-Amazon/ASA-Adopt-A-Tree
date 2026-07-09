@@ -434,6 +434,9 @@ def stripe_webhook(request):
                 format_adoption_date = donation.date.strftime("%d/%m/%Y")
                 format_expiration_date = donation.expiration_date.strftime("%d/%m/%Y")
 
+                # TODO: Uncomment this code out for final product. Leaving it commented out for now in order to 
+                # prevent sending too many emails while testing.
+                """
                 try:
                     # Generate the user's certificate AFTER database changes to ensure PDF and email aren't sent
                     # if there is some issue and database queries are voided
@@ -462,6 +465,7 @@ def stripe_webhook(request):
                 # If an exception is hit, log it but don't return anything to allow the database modifications to go through still
                 except Exception:
                     logger.exception(f"Certificate generation failed for donation {donation.id}")
+                """
 
                 return HttpResponse(status=200)
         
