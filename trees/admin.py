@@ -7,31 +7,6 @@ from django.contrib import admin
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from .models import Tree, Donor, Donation
-from copy import deepcopy
-
-# Default admin class that allows the collapsible fields of table entries to start open when creating a new table entry,
-# but start closed when modifying or viewing an existing entry.
-# NOTE: Currently not being used
-class StartOpenAdmin(admin.ModelAdmin):
-    base_fieldsets = ()
-
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = deepcopy(self.base_fieldsets or super().get_fieldsets(request, obj))
-
-        # If the object doesn't exist, then we start with every collapsible field open.
-        if obj is None:
-            for _, opts in fieldsets:
-                classes = set(opts.get("classes", ()))
-                classes.add("start-open")
-                opts["classes"] = tuple(classes)
-        else:
-            for _, opts in fieldsets:
-                classes = set(opts.get("classes", ()))
-                if "start-open" not in classes:
-                    classes.discard("start-open")
-                opts["classes"] = tuple(classes)
-        
-        return fieldsets
 
 # Reorders and groups all relevant information from the table for easy modification.
 @admin.register(Tree)

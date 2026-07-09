@@ -29,8 +29,14 @@ def send_certificate_email(
             subject="Thank you for your 1 year tree adoption",
             body=(
                 f"Dear {donor_name}, \n\n"
-                f"Thank you your contribution in adopting one of our trees. "
-                f"Your certificate of adoption is attached."
+                f"Thank you for adopting a tree through our Adopt a Tree platform.\n\n"
+                f"Every donation helps ensure these trees and property remain safe and continue to benefit the environment.\n\n"
+                f"Attached to this email is your Certificate of Adoption as a token of our appreciation."
+                f"It includes details of the tree you have adopted and serves as a reminder of the impact your contribution is making.\n\n"
+                f"We are grateful for your support and for joining us in perserving our Amazon rainforest.\n\n"
+                f"Sincerely,\n"
+                f"Alliance for a Sustainable Amazon\n\n"
+
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[recipient_email]

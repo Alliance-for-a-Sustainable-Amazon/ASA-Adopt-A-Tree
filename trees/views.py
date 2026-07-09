@@ -473,8 +473,8 @@ def stripe_webhook(request):
 
     return HttpResponse(status=200)
 
-# TODO: Remove this one certificate generation is complete
 # Creates a preview page of the certificate for testing
+# NOTE: This is used solely for local testing
 def preview_certificate(request):
     temp_file = tempfile.NamedTemporaryFile(
         suffix=".pdf",
@@ -506,29 +506,3 @@ def preview_certificate(request):
         open(temp_file.name, "rb"),
         "application/pdf"
     )
-
-# TODO: Currently this table is not being used on the site. Either set it up, or remove it for final production.
-# Generic table view for all models. Locked behind admin access due to sensitive information in some tables.
-@staff_member_required
-def generic_list_view(request, model_name):
-    model_class = MODEL_MAP.get(model_name.lower())
-    if not model_class:
-        raise Http404("No table found.")
-
-    objects = model_class.objects.all()
-
-    paginator = Paginator(objects, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    headers = [field.verbose_name.capitalize() for field in model_class._meta.fields]
-    field_names = [field.name for field in model_class._meta.fields]
-
-    context = {
-        'objects': page_obj,
-        'headers': headers,
-        'field_names': field_names,
-        'title': model_class._meta.verbose_name_plural.capitalize(),
-    }
-
-    return render(request, 'trees/generic_table.html', context)
