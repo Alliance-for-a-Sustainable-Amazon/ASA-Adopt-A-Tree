@@ -489,8 +489,8 @@ def preview_certificate(request):
     blob_name = "BEEX_0020.jpg"
 
     # Only send the image url if it exists
-    #if blob_exists(blob_name):
-    #    image_url = (f"https://{AZURE_BLOB_STORAGE}.blob.core.windows.net/{AZURE_BLOB_CONTAINER}/{blob_name}")
+    if blob_exists(blob_name):
+        image_url = (f"https://{AZURE_BLOB_STORAGE}.blob.core.windows.net/{AZURE_BLOB_CONTAINER}/{blob_name}")
 
     pdf_bytes = generate_certificate(
         donor_name="John Smith",

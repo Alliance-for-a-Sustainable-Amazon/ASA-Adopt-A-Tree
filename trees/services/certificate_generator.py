@@ -14,7 +14,7 @@ from django.contrib.staticfiles import finders
 
 template_path = finders.find("certificates/ASA_certificate_template.png")
 
-testing_image_path = finders.find("certificates/BEEX-0020.png")
+placeholder_path = finders.find("certificates/certificate_placeholder.png")
 
 PAGE_WIDTH, PAGE_HEIGHT = landscape(A4)
 
@@ -146,7 +146,7 @@ def draw_tree_image(
     width,
     height,
     image_url=None,
-    placeholder_path=testing_image_path #TODO: Change this out for production
+    placeholder_path=placeholder_path
 ):
     """
     Draw a given tree image within a provided area of the certificate. 
@@ -165,9 +165,6 @@ def draw_tree_image(
             provided or cannot be downloaded
     """
     image_reader = None
-
-    # TODO: Remove this 
-    image_url = testing_image_path
 
     try:
         # Checks whether file is from thee web or local. Used for local development.
@@ -224,7 +221,7 @@ def draw_tree_image(
         canvas.drawCentredString(
             x + width / 2,
             y + height / 2,
-            "Image Unavailable"
+            "No Image Available"
         )
 
         return
